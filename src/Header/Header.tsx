@@ -1,4 +1,5 @@
 import * as React from 'react';
+import { connect } from 'mini-store'
 import {
   ColumnsType,
   CellType,
@@ -6,6 +7,8 @@ import {
   ColumnType,
   GetComponentProps,
   ColumnGroupType,
+  TableStoreState,
+  DefaultRecordType,
 } from '../interface';
 import HeaderRow from './HeaderRow';
 import TableContext from '../context/TableContext';
@@ -86,6 +89,8 @@ export interface HeaderProps<RecordType> {
   flattenColumns: ColumnType<RecordType>[];
   stickyOffsets: StickyOffsets;
   onHeaderRow: GetComponentProps<ColumnType<RecordType>[]>;
+  fixed?: string | number;
+  heightFun: (rows: CellType<DefaultRecordType>[][]) => string | null | number;
 }
 
 function Header<RecordType>({
@@ -93,9 +98,11 @@ function Header<RecordType>({
   columns,
   flattenColumns,
   onHeaderRow,
+  heightFun,
 }: HeaderProps<RecordType>): React.ReactElement {
   const { prefixCls, getComponent } = React.useContext(TableContext);
   const rows: CellType<RecordType>[][] = React.useMemo(() => parseHeaderRows(columns), [columns]);
+  const height = heightFun(rows);
 
   const WrapperComponent = getComponent(['header', 'wrapper'], 'thead');
   const trComponent = getComponent(['header', 'row'], 'tr');
@@ -114,6 +121,7 @@ function Header<RecordType>({
             cellComponent={thComponent}
             onHeaderRow={onHeaderRow}
             index={rowIndex}
+            height={height}
           />
         );
 
@@ -123,4 +131,32 @@ function Header<RecordType>({
   );
 }
 
-export default Header;
+function getRowHeight(state: TableStoreState, props: HeaderProps<DefaultRecordType>, rows: CellType<DefaultRecordType>[][]) {
+  const { fixedColumnsHeadRowsHeight } = state;
+  const { columns, fixed } = props;
+  const headerHeight = fixedColumnsHeadRowsHeight[0];
+
+  if (!fixed) {
+    return null;
+  }
+
+  if (headerHeight && columns) {
+    if (headerHeight === 'auto') {
+      return 'auto';
+    }
+    return headerHeight / rows.length;
+  }
+  return null;
+}
+
+function getRowHeightFun (state: TableStoreState, props: HeaderProps<DefaultRecordType>) {
+  return (rows: CellType<DefaultRecordType>[][]) => getRowHeight(state, props, rows);
+}
+
+
+
+export default connect((state: TableStoreState, props: HeaderProps<DefaultRecordType>) => ({
+  heightFun: getRowHeightFun(state, props)
+}))(Header);
+
+// export default Header;

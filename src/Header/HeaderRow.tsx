@@ -19,6 +19,7 @@ export interface RowProps<RecordType> {
   cellComponent: CustomizeComponent;
   onHeaderRow: GetComponentProps<ColumnType<RecordType>[]>;
   index: number;
+  height: number| string| null;
 }
 
 function HeaderRow<RecordType>({
@@ -29,6 +30,7 @@ function HeaderRow<RecordType>({
   cellComponent: CellComponent,
   onHeaderRow,
   index,
+  height,
 }: RowProps<RecordType>) {
   const { prefixCls, direction } = React.useContext(TableContext);
 
@@ -43,7 +45,7 @@ function HeaderRow<RecordType>({
   const columnsKey = getColumnsKey(cells.map(cell => cell.column));
 
   return (
-    <RowComponent {...rowProps}>
+    <RowComponent {...rowProps} style={{ height }}>
       {cells.map((cell: CellType<RecordType>, cellIndex) => {
         const { column } = cell;
         const fixedInfo = getCellFixedInfo(

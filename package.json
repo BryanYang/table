@@ -53,6 +53,7 @@
   "dependencies": {
     "@babel/runtime": "^7.10.1",
     "classnames": "^2.2.5",
+    "mini-store": "^3.0.6",
     "raf": "^3.4.1",
     "rc-resize-observer": "^0.2.0",
     "rc-util": "^5.0.4",

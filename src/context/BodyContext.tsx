@@ -31,6 +31,8 @@ export interface BodyContextProps<RecordType = DefaultRecordType> {
   expandIcon: RenderExpandIcon<RecordType>;
   onTriggerExpand: TriggerEventHandler<RecordType>;
   expandIconColumnIndex: number;
+
+  fixed?: string | boolean;
 }
 
 const BodyContext = React.createContext<BodyContextProps>(null);

@@ -24,10 +24,12 @@
  *  - All expanded props, move into expandable
  */
 
+/* eslint-disable @typescript-eslint/no-use-before-define */
 import * as React from 'react';
 import classNames from 'classnames';
 import shallowEqual from 'shallowequal';
 import warning from 'rc-util/lib/warning';
+import { Provider, create } from 'mini-store';
 import ResizeObserver from 'rc-resize-observer';
 import getScrollBarSize from 'rc-util/lib/getScrollBarSize';
 import ColumnGroup from './sugar/ColumnGroup';
@@ -229,6 +231,58 @@ function Table<RecordType extends DefaultRecordType>(props: TableProps<RecordTyp
     [components],
   );
 
+
+  // ==================== Store ==========================
+  const store = React.useMemo(() => create({
+    currentHoverKey: null,
+    fixedColumnsHeadRowsHeight: [],
+    fixedColumnsBodyRowsHeight: {},
+  }), []);
+
+  const syncFixedTableRowHeight = React.useCallback(() => {
+    const bodyTable = scrollBodyRef.current;
+    const headTable = scrollHeaderRef.current;
+    const headRows = headTable
+    ? headTable.querySelectorAll('thead')
+    : bodyTable.querySelectorAll('thead');
+    const bodyRows = bodyTable.querySelectorAll(`.${prefixCls}-row`) || [];
+    const state = store.getState();
+    const fixedColumnsHeadRowsHeight = [].map.call(
+      headRows,
+      (row: HTMLElement) => row.getBoundingClientRect().height || 'auto',
+    );
+    const fixedColumnsBodyRowsHeight = [].reduce.call(
+      bodyRows,
+      (acc: Record<string, number | 'auto'>, row: HTMLElement) => {
+        const rowkey = row.getAttribute('data-row-key');
+        const height =
+          row.getBoundingClientRect().height || state.fixedColumnsBodyRowsHeight[rowkey] || 'auto';
+        acc[rowkey] = height;
+        return acc;
+      },
+      {},
+    );
+    if (
+      shallowEqual(state.fixedColumnsHeadRowsHeight, fixedColumnsHeadRowsHeight) &&
+      shallowEqual(state.fixedColumnsBodyRowsHeight, fixedColumnsBodyRowsHeight)
+    ) {
+      return;
+    }
+
+    console.log(fixedColumnsHeadRowsHeight);
+    console.log(fixedColumnsBodyRowsHeight);
+    store.setState({
+      fixedColumnsHeadRowsHeight,
+      fixedColumnsBodyRowsHeight,
+    });
+  }, []);
+
+  const handleWindowResize = React.useCallback(() => {
+    syncFixedTableRowHeight();
+  }, [])
+
+  
+
   const getComponent = React.useCallback<GetComponent>(
     (path, defaultComponent) =>
       getPathValue<CustomizeComponent, TableComponents<RecordType>>(mergedComponents, path) ||
@@ -383,6 +437,8 @@ function Table<RecordType extends DefaultRecordType>(props: TableProps<RecordTyp
   const fixHeader = scroll && validateValue(scroll.y);
   const horizonScroll = scroll && validateValue(scroll.x);
   const fixColumn = horizonScroll && flattenColumns.some(({ fixed }) => fixed);
+  const fixLeftColumns: ColumnsType<RecordType> = columns.filter(({ fixed }) => fixed === 'left');
+  const fixRightColumns: ColumnsType<RecordType> = columns.filter(({ fixed }) => fixed === 'right');
 
   // Sticky
   const stickyRef = React.useRef<{ setScrollLeft: (left: number) => void }>();
@@ -467,6 +523,7 @@ function Table<RecordType extends DefaultRecordType>(props: TableProps<RecordTyp
   };
 
   const onFullTableResize = ({ width }) => {
+    // console.log(width);
     triggerOnScroll();
     setComponentWidth(fullTableRef.current ? fullTableRef.current.offsetWidth : width);
   };
@@ -478,6 +535,11 @@ function Table<RecordType extends DefaultRecordType>(props: TableProps<RecordTyp
       triggerOnScroll();
     }
   }, [horizonScroll]);
+
+  React.useEffect(() => {
+    handleWindowResize();
+  }, [])
+  
 
   // ================== INTERNAL HOOKS ==================
   React.useEffect(() => {
@@ -613,7 +675,7 @@ function Table<RecordType extends DefaultRecordType>(props: TableProps<RecordTyp
         </div>
       );
     }
-
+    // console.log(showHeader);
     groupTableNode = (
       <>
         {/* Header Table */}
@@ -656,67 +718,12 @@ function Table<RecordType extends DefaultRecordType>(props: TableProps<RecordTyp
     );
   }
 
+
   const ariaProps = getDataAndAriaProps(props);
 
-  let fullTable = (
-    <div
-      className={classNames(prefixCls, className, {
-        [`${prefixCls}-rtl`]: direction === 'rtl',
-        [`${prefixCls}-ping-left`]: pingedLeft,
-        [`${prefixCls}-ping-right`]: pingedRight,
-        [`${prefixCls}-layout-fixed`]: tableLayout === 'fixed',
-        [`${prefixCls}-fixed-header`]: fixHeader,
-        /** No used but for compatible */
-        [`${prefixCls}-fixed-column`]: fixColumn,
-        [`${prefixCls}-scroll-horizontal`]: horizonScroll,
-        [`${prefixCls}-has-fix-left`]: flattenColumns[0] && flattenColumns[0].fixed,
-        [`${prefixCls}-has-fix-right`]:
-          flattenColumns[flattenColumns.length - 1] &&
-          flattenColumns[flattenColumns.length - 1].fixed === 'right',
-      })}
-      style={style}
-      id={id}
-      ref={fullTableRef}
-      {...ariaProps}
-    >
-      <MemoTableContent
-        pingLeft={pingedLeft}
-        pingRight={pingedRight}
-        props={{ ...props, stickyOffsets, mergedExpandedKeys }}
-      >
-        {title && <Panel className={`${prefixCls}-title`}>{title(mergedData)}</Panel>}
-        <div className={`${prefixCls}-container`}>{groupTableNode}</div>
-        {footer && <Panel className={`${prefixCls}-footer`}>{footer(mergedData)}</Panel>}
-      </MemoTableContent>
-    </div>
-  );
-
-  if (horizonScroll) {
-    fullTable = <ResizeObserver onResize={onFullTableResize}>{fullTable}</ResizeObserver>;
+  const renderMainTable = () => {
+    return groupTableNode;
   }
-
-  const TableContextValue = React.useMemo(
-    () => ({
-      prefixCls,
-      getComponent,
-      scrollbarSize,
-      direction,
-      fixedInfoList: flattenColumns.map((_, colIndex) =>
-        getCellFixedInfo(colIndex, colIndex, flattenColumns, stickyOffsets, direction),
-      ),
-      isSticky,
-    }),
-    [
-      prefixCls,
-      getComponent,
-      scrollbarSize,
-      direction,
-      flattenColumns,
-      stickyOffsets,
-      direction,
-      isSticky,
-    ],
-  );
 
   const BodyContextValue = React.useMemo(
     () => ({
@@ -754,6 +761,127 @@ function Table<RecordType extends DefaultRecordType>(props: TableProps<RecordTyp
       indentSize,
     ],
   );
+
+  const BodyContextValueOnlyFixedLeftColumns = {...BodyContextValue, ...{
+    columns: fixLeftColumns,
+    flattenColumns: fixLeftColumns,
+    componentWidth: fixLeftColumns.map(c => c.width || 0).reduce((a, b) => a + b, 0) + 60,
+    fixed: 'left',
+  } };
+
+  const renderLeftFixedTable = () => {
+    // console.log(BodyContextValueOnlyFixedLeftColumns);
+    // console.log(scrollTableStyle);
+    const bodyColGroupLeft = (
+      <ColGroup colWidths={BodyContextValueOnlyFixedLeftColumns.flattenColumns.map(({ width }) => width)} columns={BodyContextValueOnlyFixedLeftColumns.flattenColumns} />
+    );
+    return <BodyContext.Provider value={BodyContextValueOnlyFixedLeftColumns}>
+      <div
+        style={{
+          ...scrollXStyle,
+          ...scrollYStyle,
+        }}
+        className={classNames(`${prefixCls}-content`)}
+        onScroll={onScroll}
+        // ref={scrollBodyRef}
+      >
+        <TableComponent style={{ tableLayout: mergedTableLayout, width: BodyContextValueOnlyFixedLeftColumns.componentWidth }}>
+          {bodyColGroupLeft}
+          {showHeader !== false && <Header fixed="left" {...headerProps} columns={fixLeftColumns} flattenColumns={fixLeftColumns} />}
+          {bodyTable}
+          {footerTable}
+        </TableComponent>
+      </div>
+    </BodyContext.Provider>
+  }
+
+  const renderRightFixedTable = () => {
+    return <div
+      style={{
+        ...scrollXStyle,
+        ...scrollYStyle,
+      }}
+      className={classNames(`${prefixCls}-content`)}
+      onScroll={onScroll}
+      ref={scrollBodyRef}
+    >
+      <TableComponent style={{ ...scrollTableStyle, tableLayout: mergedTableLayout }}>
+        {bodyColGroup}
+        {showHeader !== false && <Header {...headerProps} {...columnContext} />}
+        {bodyTable}
+        {footerTable}
+      </TableComponent>
+    </div>
+  }
+
+  let fullTable = (
+    <div
+      className={classNames(prefixCls, className, {
+        [`${prefixCls}-rtl`]: direction === 'rtl',
+        [`${prefixCls}-ping-left`]: pingedLeft,
+        [`${prefixCls}-ping-right`]: pingedRight,
+        [`${prefixCls}-layout-fixed`]: tableLayout === 'fixed',
+        [`${prefixCls}-fixed-header`]: fixHeader,
+        /** No used but for compatible */
+        [`${prefixCls}-fixed-column`]: fixColumn,
+        [`${prefixCls}-scroll-horizontal`]: horizonScroll,
+        [`${prefixCls}-has-fix-left`]: flattenColumns[0] && flattenColumns[0].fixed,
+        [`${prefixCls}-has-fix-right`]:
+          flattenColumns[flattenColumns.length - 1] &&
+          flattenColumns[flattenColumns.length - 1].fixed === 'right',
+      })}
+      style={style}
+      id={id}
+      ref={fullTableRef}
+      {...ariaProps}
+    >
+      <Provider store={store}>
+        <MemoTableContent
+          pingLeft={pingedLeft}
+          pingRight={pingedRight}
+          props={{ ...props, stickyOffsets, mergedExpandedKeys }}
+        >
+          {title && <Panel className={`${prefixCls}-title`}>{title(mergedData)}</Panel>}
+          <div className={`${prefixCls}-container`}>
+            <>
+            {renderMainTable()}
+            {fixLeftColumns.length && renderLeftFixedTable()}
+            </>
+          </div>
+          {footer && <Panel className={`${prefixCls}-footer`}>{footer(mergedData)}</Panel>}
+        </MemoTableContent>
+      </Provider>
+    </div>
+  );
+
+  if (horizonScroll) {
+    fullTable = <ResizeObserver onResize={onFullTableResize}>{fullTable}</ResizeObserver>;
+  }
+
+  const TableContextValue = React.useMemo(
+    () => ({
+      prefixCls,
+      getComponent,
+      scrollbarSize,
+      direction,
+      fixedInfoList: flattenColumns.map((_, colIndex) =>
+        getCellFixedInfo(colIndex, colIndex, flattenColumns, stickyOffsets, direction),
+      ),
+      isSticky,
+    }),
+    [
+      prefixCls,
+      getComponent,
+      scrollbarSize,
+      direction,
+      flattenColumns,
+      stickyOffsets,
+      direction,
+      isSticky,
+    ],
+  );
+
+
 
   const ResizeContextValue = React.useMemo(() => ({ onColumnResize }), [onColumnResize]);
 

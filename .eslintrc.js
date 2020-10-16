@@ -6,6 +6,7 @@ module.exports = {
     ...base.rules,
     'arrow-parens': 0,
     'react/no-array-index-key': 0,
+    'no-use-before-define': 0,
     'react/sort-comp': 0,
     '@typescript-eslint/no-explicit-any': 1,
     '@typescript-eslint/no-empty-interface': 1,
