@@ -5,7 +5,7 @@ import Cell from '../Cell';
 import TableContext from '../context/TableContext';
 import BodyContext from '../context/BodyContext';
 import { getColumnsKey } from '../utils/valueUtil';
-import { ColumnType, CustomizeComponent, GetComponentProps, Key, GetRowKey, TableStoreState, DefaultRecordType } from '../interface';
+import { ColumnType, CustomizeComponent, GetComponentProps, Key, GetRowKey, TableStoreState, TableStore, DefaultRecordType } from '../interface';
 import ExpandedRow from './ExpandedRow';
 
 export interface BodyRowProps<RecordType> {
@@ -13,7 +13,10 @@ export interface BodyRowProps<RecordType> {
   index: number;
   className?: string;
   style?: React.CSSProperties;
-  heightFun?: (fixed?: boolean | string) => null | number | string;
+  heightFun?: (fixed?: boolean | string) => null | {
+    height: number | undefined;
+    expandedRowsHeight: number | undefined;
+  };
   recordKey: Key;
   expandedKeys: Set<Key>;
   rowComponent: CustomizeComponent;
@@ -25,6 +28,7 @@ export interface BodyRowProps<RecordType> {
   getRowKey: GetRowKey<RecordType>;
   childrenColumnName: string;
   ancestorKeys?: Key[];
+  store: TableStore;
 }
 
 function BodyRow<RecordType extends { children?: RecordType[] }>(props: BodyRowProps<RecordType>) {
@@ -43,8 +47,9 @@ function BodyRow<RecordType extends { children?: RecordType[] }>(props: BodyRowP
     cellComponent,
     childrenColumnName,
     heightFun,
+    store,
   } = props;
-  const { prefixCls, fixedInfoList } = React.useContext(TableContext);
+  const { prefixCls } = React.useContext(TableContext);
   const {
     fixHeader,
     fixColumn,
@@ -60,33 +65,41 @@ function BodyRow<RecordType extends { children?: RecordType[] }>(props: BodyRowP
     expandIcon,
     expandedRowRender,
     expandIconColumnIndex,
+    fixed,
   } = React.useContext(BodyContext);
   const [expandRended, setExpandRended] = React.useState(false);
+  const ref = React.useRef<HTMLDivElement>();
 
   const expanded = expandedKeys && expandedKeys.has(props.recordKey);
+
+  const setExpandedRowHeight = React.useCallback(() => {
+    let { expandedRowsHeight } = store.getState();
+    const { height } = ref.current.getBoundingClientRect();
+    expandedRowsHeight = {
+      ...expandedRowsHeight,
+      [`${rowKey}-extra-row`]: height,
+    };
+    store.setState({ expandedRowsHeight });
+  }, [])
 
   React.useEffect(() => {
     if (expanded) {
       setExpandRended(true);
     }
-  }, [expanded]);
-
-  React.useEffect(() => {
-    // todo: 如果有固定列且展开的时候，同步高度给底下table
-
     if (!fixColumn) {
       return;
     }
 
-    if (!fixColumn && expandedKeys.has(rowKey)) {
-      // this.setExpandedRowHeight();
+    if (!fixed && expanded) {
+      setExpandedRowHeight();
     }
 
     // 这是子table情况？
     // if (!fixed && ancestorKeys.length >= 0) {
     //   this.setRowHeight();
     // }
-  }, []);
+
+  }, [expanded]);
 
   const rowSupportExpand = expandableType === 'row' && (!rowExpandable || rowExpandable(record));
   // Only when row is not expandable and `children` exist in record
@@ -120,8 +133,7 @@ function BodyRow<RecordType extends { children?: RecordType[] }>(props: BodyRowP
 
   const columnsKey = getColumnsKey(flattenColumns);
 
-  const { fixed } = React.useContext(BodyContext);
-  const height = heightFun(fixed);
+  const { height, expandedRowsHeight } = heightFun(fixed) || {};
 
   const baseRowNode = (
     <RowComponent
@@ -144,8 +156,11 @@ function BodyRow<RecordType extends { children?: RecordType[] }>(props: BodyRowP
       {flattenColumns.map((column: ColumnType<RecordType>, colIndex) => {
         const { render, dataIndex, className: columnClassName } = column;
 
+        // 隐藏掉下方主table的fixed列
+        const shouldHidden = column.fixed && !fixed;
+
         const key = columnsKey[colIndex];
-        const fixedInfo = fixedInfoList[colIndex];
+        // const fixedInfo = fixedInfoList[colIndex];
 
         // ============= Used for nest expandable =============
         let appendCellNode: React.ReactNode;
@@ -174,7 +189,7 @@ function BodyRow<RecordType extends { children?: RecordType[] }>(props: BodyRowP
 
         return (
           <Cell
-            className={columnClassName}
+            className={classNames(columnClassName, { [`${prefixCls}-fixed-columns-in-body`]: shouldHidden })}
             ellipsis={column.ellipsis}
             align={column.align}
             component={cellComponent}
@@ -185,7 +200,6 @@ function BodyRow<RecordType extends { children?: RecordType[] }>(props: BodyRowP
             dataIndex={dataIndex}
             render={render}
             shouldCellUpdate={column.shouldCellUpdate}
-            {...fixedInfo}
             appendNode={appendCellNode}
             additionalProps={additionalCellProps}
           />
@@ -215,7 +229,9 @@ function BodyRow<RecordType extends { children?: RecordType[] }>(props: BodyRowP
         component={RowComponent}
         componentWidth={componentWidth}
         cellComponent={cellComponent}
+        style={{ height: expandedRowsHeight }}
         colSpan={flattenColumns.length}
+        ref={ref}
       >
         {expandContent}
       </ExpandedRow>
@@ -263,15 +279,10 @@ function getRowHeight(state: TableStoreState, props: BodyRowProps<DefaultRecordT
     return null;
   }
 
-  if (expandedRowsHeight[rowKey]) {
-    return expandedRowsHeight[rowKey];
+  return {
+    height: fixedColumnsBodyRowsHeight[rowKey],
+    expandedRowsHeight: expandedRowsHeight[`${rowKey}-extra-row`]
   }
-
-  if (fixedColumnsBodyRowsHeight[rowKey]) {
-    return fixedColumnsBodyRowsHeight[rowKey];
-  }
-
-  return null;
 }
 
 function getRowHeightFun(state: TableStoreState, props: BodyRowProps<DefaultRecordType>) {
@@ -280,16 +291,16 @@ function getRowHeightFun(state: TableStoreState, props: BodyRowProps<DefaultReco
 
 
 export default connect((state: TableStoreState, props: BodyRowProps<DefaultRecordType>) => {
-    const { currentHoverKey, expandedRowKeys } = state;
-    const { rowKey, ancestorKeys = [] } = props;
-    
-    const visible = ancestorKeys.length === 0 || ancestorKeys.every(k => expandedRowKeys.includes(k));
-  
-    return {
-      visible,
-      hovered: currentHoverKey === rowKey,
-      heightFun: getRowHeightFun(state, props),
-    };
-  })(BodyRow)
+  const { currentHoverKey, expandedRowKeys } = state;
+  const { rowKey, ancestorKeys = [] } = props;
+
+  const visible = ancestorKeys.length === 0 || ancestorKeys.every(k => expandedRowKeys.includes(k));
+
+  return {
+    visible,
+    hovered: currentHoverKey === rowKey,
+    heightFun: getRowHeightFun(state, props),
+  };
+})(BodyRow)
 
 // export default BodyRow;

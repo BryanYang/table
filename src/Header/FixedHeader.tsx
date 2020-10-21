@@ -41,7 +41,7 @@ const FixedHeader = React.forwardRef<HTMLDivElement, FixedHeaderProps<unknown>>(
       flattenColumns,
       colWidths,
       columCount,
-      stickyOffsets,
+      // stickyOffsets,
       direction,
       fixHeader,
       offsetHeader,
@@ -98,19 +98,19 @@ const FixedHeader = React.forwardRef<HTMLDivElement, FixedHeaderProps<unknown>>(
     );
 
     // Calculate the sticky offsets
-    const headerStickyOffsets = useMemo(() => {
-      const { right, left } = stickyOffsets;
-      return {
-        ...stickyOffsets,
-        left:
-          direction === 'rtl' ? [...left.map(width => width + combinationScrollBarSize), 0] : left,
-        right:
-          direction === 'rtl'
-            ? right
-            : [...right.map(width => width + combinationScrollBarSize), 0],
-        isSticky,
-      };
-    }, [combinationScrollBarSize, stickyOffsets, isSticky]);
+    // const headerStickyOffsets = useMemo(() => {
+    //   const { right, left } = stickyOffsets;
+    //   return {
+    //     ...stickyOffsets,
+    //     left:
+    //       direction === 'rtl' ? [...left.map(width => width + combinationScrollBarSize), 0] : left,
+    //     right:
+    //       direction === 'rtl'
+    //         ? right
+    //         : [...right.map(width => width + combinationScrollBarSize), 0],
+    //     isSticky,
+    //   };
+    // }, [combinationScrollBarSize, stickyOffsets, isSticky]);
 
     const mergedColumnWidth = useColumnWidth(colWidths, columCount);
 
@@ -138,7 +138,7 @@ const FixedHeader = React.forwardRef<HTMLDivElement, FixedHeaderProps<unknown>>(
           />
           <Header
             {...props}
-            stickyOffsets={headerStickyOffsets}
+            // stickyOffsets={headerStickyOffsets}
             columns={columnsWithScrollbar}
             flattenColumns={flattenColumnsWithScrollbar}
           />

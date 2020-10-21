@@ -15,6 +15,8 @@ export interface ExpandedRowProps<RecordType> {
   expanded: boolean;
   children: React.ReactNode;
   colSpan: number;
+  ref?: React.RefAttributes<any>;
+  style?: React.CSSProperties;
 }
 
 function ExpandedRow<RecordType>({
@@ -29,9 +31,10 @@ function ExpandedRow<RecordType>({
   expanded,
   componentWidth,
   colSpan,
-}: ExpandedRowProps<RecordType>) {
+  style,
+}: ExpandedRowProps<RecordType>, ref) {
   const { scrollbarSize } = React.useContext(TableContext);
-
+  const { height } = style;
   // Cache render node
   return React.useMemo(() => {
     let contentNode = children;
@@ -41,8 +44,8 @@ function ExpandedRow<RecordType>({
         <div
           style={{
             width: componentWidth - (fixHeader ? scrollbarSize : 0),
-            position: 'sticky',
-            left: 0,
+            // position: 'sticky',
+            // left: 0,
             overflow: 'hidden',
           }}
           className={`${prefixCls}-expanded-row-fixed`}
@@ -52,11 +55,14 @@ function ExpandedRow<RecordType>({
       );
     }
 
+    // console.log(style);
     return (
       <Component
         className={className}
+        ref={ref}
         style={{
           display: expanded ? null : 'none',
+          ...style,
         }}
       >
         <Cell component={cellComponent} prefixCls={prefixCls} colSpan={colSpan}>
@@ -74,7 +80,8 @@ function ExpandedRow<RecordType>({
     componentWidth,
     colSpan,
     scrollbarSize,
+    height,
   ]);
 }
 
-export default ExpandedRow;
+export default React.forwardRef(ExpandedRow);

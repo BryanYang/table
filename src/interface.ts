@@ -25,6 +25,11 @@ export type DefaultRecordType = Record<string, any>;
 
 export type TableLayout = 'auto' | 'fixed';
 
+export interface TableStore {
+  getState: () => TableStoreState;
+  setState: (state: Partial<TableStoreState>) => void;
+}
+
 export interface TableStoreState {
   currentHoverKey: Key;
   expandedRowKeys: Key[];
@@ -103,6 +108,7 @@ export type ColumnsType<RecordType = unknown> = (
 
 export type GetRowKey<RecordType> = (record: RecordType, index?: number) => Key;
 
+export type ScrollPosition = 'left' | 'middle' | 'right' | 'both';
 // ================= Fix Column =================
 export interface StickyOffsets {
   left: number[];

@@ -3,7 +3,7 @@ import { connect } from 'mini-store'
 import {
   ColumnsType,
   CellType,
-  StickyOffsets,
+  // StickyOffsets,
   ColumnType,
   GetComponentProps,
   ColumnGroupType,
@@ -87,14 +87,14 @@ function parseHeaderRows<RecordType>(
 export interface HeaderProps<RecordType> {
   columns: ColumnsType<RecordType>;
   flattenColumns: ColumnType<RecordType>[];
-  stickyOffsets: StickyOffsets;
+  // stickyOffsets: StickyOffsets;
   onHeaderRow: GetComponentProps<ColumnType<RecordType>[]>;
   fixed?: string | number;
-  heightFun: (rows: CellType<DefaultRecordType>[][]) => string | null | number;
+  heightFun?: (rows: CellType<DefaultRecordType>[][]) => string | null | number;
 }
 
 function Header<RecordType>({
-  stickyOffsets,
+  // stickyOffsets,
   columns,
   flattenColumns,
   onHeaderRow,
@@ -116,7 +116,7 @@ function Header<RecordType>({
             key={rowIndex}
             flattenColumns={flattenColumns}
             cells={row}
-            stickyOffsets={stickyOffsets}
+            // stickyOffsets={stickyOffsets}
             rowComponent={trComponent}
             cellComponent={thComponent}
             onHeaderRow={onHeaderRow}

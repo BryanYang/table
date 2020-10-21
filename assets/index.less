@@ -13,7 +13,7 @@
 @cell-margin: -@vertical-padding -@horizontal-padding;
 
 .tableBorder() {
-  border: @border;
+  // border: @border;
   border-right: 0;
   border-bottom: 0;
 }
@@ -28,6 +28,45 @@
   &-rtl {
     direction: rtl;
   }
+
+  &-fixed-left, &-fixed-right {
+    position: absolute;
+    top: 0;
+    overflow: hidden;
+    transition: box-shadow .3s ease;
+    z-index: auto;
+    box-shadow: none;
+
+    .@{tablePrefixCls}-expanded-row {
+      opacity: 0;
+    }
+  }
+
+  &-fixed-left {
+    left: 0;
+  }
+
+  &-fixed-right {
+    right: 0;
+  }
+
+  &-ping-left  &-fixed-left{
+    box-shadow: 6px 0 6px -4px rgba(0,0,0,.15)
+  }
+ 
+  &-ping-right  &-fixed-right{
+    box-shadow: -6px 0 6px -4px rgba(0,0,0,.15)
+  }
+
+  &-fixed-columns-in-body {
+    visibility: hidden;
+  }
+
+  &-expanded-row {
+    overflow: hidden;
+    display: inline-flex;
+  }
+
   // ================= Global =================
   table {
     border-spacing: 0px;
@@ -232,15 +271,15 @@
       padding: @cell-padding;
       margin-right: -@horizontal-padding - 2 * @border-width;
 
-      &::after {
-        content: '';
-        position: absolute;
-        width: 0;
-        top: 0;
-        bottom: 0;
-        right: 1px;
-        border-right: @border;
-      }
+      // &::after {
+      //   content: '';
+      //   position: absolute;
+      //   width: 0;
+      //   top: 0;
+      //   bottom: 0;
+      //   right: 1px;
+      //   border-right: @border;
+      // }
     }
   }
 

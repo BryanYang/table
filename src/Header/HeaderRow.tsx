@@ -1,19 +1,21 @@
 import * as React from 'react';
+import classNames from 'classnames'
 import Cell from '../Cell';
 import {
   CellType,
-  StickyOffsets,
+  // StickyOffsets,
   ColumnType,
   CustomizeComponent,
   GetComponentProps,
 } from '../interface';
 import TableContext from '../context/TableContext';
-import { getCellFixedInfo } from '../utils/fixUtil';
+// import { getCellFixedInfo } from '../utils/fixUtil';
 import { getColumnsKey } from '../utils/valueUtil';
+import BodyContext from '../context/BodyContext';
 
 export interface RowProps<RecordType> {
   cells: CellType<RecordType>[];
-  stickyOffsets: StickyOffsets;
+  // stickyOffsets: StickyOffsets;
   flattenColumns: ColumnType<RecordType>[];
   rowComponent: CustomizeComponent;
   cellComponent: CustomizeComponent;
@@ -24,15 +26,14 @@ export interface RowProps<RecordType> {
 
 function HeaderRow<RecordType>({
   cells,
-  stickyOffsets,
-  flattenColumns,
   rowComponent: RowComponent,
   cellComponent: CellComponent,
   onHeaderRow,
   index,
   height,
 }: RowProps<RecordType>) {
-  const { prefixCls, direction } = React.useContext(TableContext);
+  const { prefixCls } = React.useContext(TableContext);
+  const { fixed } = React.useContext(BodyContext);
 
   let rowProps: React.HTMLAttributes<HTMLElement>;
   if (onHeaderRow) {
@@ -48,28 +49,23 @@ function HeaderRow<RecordType>({
     <RowComponent {...rowProps} style={{ height }}>
       {cells.map((cell: CellType<RecordType>, cellIndex) => {
         const { column } = cell;
-        const fixedInfo = getCellFixedInfo(
-          cell.colStart,
-          cell.colEnd,
-          flattenColumns,
-          stickyOffsets,
-          direction,
-        );
-
         let additionalProps: React.HTMLAttributes<HTMLElement>;
         if (column && column.onHeaderCell) {
           additionalProps = cell.column.onHeaderCell(column);
         }
 
+        // 隐藏掉底部的fixed列
+        const shouldHidden = column.fixed && !fixed;
+
         return (
           <Cell
             {...cell}
             ellipsis={column.ellipsis}
+            className={classNames({[`${prefixCls}-fixed-columns-in-body`]: shouldHidden})}
             align={column.align}
             component={CellComponent}
             prefixCls={prefixCls}
             key={columnsKey[cellIndex]}
-            {...fixedInfo}
             additionalProps={additionalProps}
             rowType="header"
           />
