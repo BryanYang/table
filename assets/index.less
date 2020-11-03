@@ -33,7 +33,7 @@
     position: absolute;
     top: 0;
     overflow: hidden;
-    transition: box-shadow .3s ease;
+    // transition: box-shadow .3s ease;
     z-index: auto;
     box-shadow: none;
 
@@ -50,13 +50,13 @@
     right: 0;
   }
 
-  &-ping-left  &-fixed-left{
-    box-shadow: 6px 0 6px -4px rgba(0,0,0,.15)
-  }
+  // &-ping-left  &-fixed-left{
+  //   box-shadow: 6px 0 6px -4px rgba(0,0,0,.15)
+  // }
  
-  &-ping-right  &-fixed-right{
-    box-shadow: -6px 0 6px -4px rgba(0,0,0,.15)
-  }
+  // &-ping-right  &-fixed-right{
+  //   box-shadow: -6px 0 6px -4px rgba(0,0,0,.15)
+  // }
 
   &-fixed-columns-in-body {
     visibility: hidden;
@@ -77,7 +77,7 @@
   td {
     padding: 0;
 
-    position: relative;
+    // position: relative;
     border: @border;
     border-top: 0;
     border-left: 0;
@@ -91,6 +91,12 @@
       border-left: @border;
       border-right: 0;
     }
+  }
+
+  th {
+    position: relative;
+    will-change: transform;
+    transition: none;
   }
 
   // ================== Cell ==================

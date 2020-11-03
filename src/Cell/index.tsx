@@ -85,7 +85,7 @@ function Cell<RecordType extends DefaultRecordType>(
     ellipsis,
     align,
     rowType,
-    isSticky,
+    // isSticky,
   }: CellProps<RecordType>,
   ref: React.Ref<any>,
 ): React.ReactElement {
@@ -195,7 +195,7 @@ function Cell<RecordType extends DefaultRecordType>(
         [`${cellPrefixCls}-fix-right-last`]: lastFixRight,
         [`${cellPrefixCls}-ellipsis`]: ellipsis,
         [`${cellPrefixCls}-with-append`]: appendNode,
-        [`${cellPrefixCls}-fix-sticky`]: (isFixLeft || isFixRight) && isSticky,
+        // [`${cellPrefixCls}-fix-sticky`]: (isFixLeft || isFixRight) && isSticky,
       },
       additionalProps.className,
       cellClassName,

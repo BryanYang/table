@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { GetComponent } from '../interface';
-import { FixedInfo } from '../utils/fixUtil';
+// import { FixedInfo } from '../utils/fixUtil';
 
 export interface TableContextProps {
   // Table context
@@ -12,9 +12,11 @@ export interface TableContextProps {
 
   direction: 'ltr' | 'rtl';
 
-  fixedInfoList: FixedInfo[];
+  // fixedInfoList: FixedInfo[];
 
   isSticky: boolean;
+
+  scrollTop: number;
 }
 
 const TableContext = React.createContext<TableContextProps>(null);

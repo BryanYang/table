@@ -100,16 +100,20 @@ function Header<RecordType>({
   onHeaderRow,
   heightFun,
 }: HeaderProps<RecordType>): React.ReactElement {
-  const { prefixCls, getComponent } = React.useContext(TableContext);
+  const { prefixCls, getComponent, scrollTop } = React.useContext(TableContext);
   const rows: CellType<RecordType>[][] = React.useMemo(() => parseHeaderRows(columns), [columns]);
   const height = heightFun(rows);
 
   const WrapperComponent = getComponent(['header', 'wrapper'], 'thead');
   const trComponent = getComponent(['header', 'row'], 'tr');
   const thComponent = getComponent(['header', 'cell'], 'th');
+  
+  const styles = scrollTop > 0 ? {
+    transform: `translateY(${scrollTop}px)`
+  } : undefined;
 
   return (
-    <WrapperComponent className={`${prefixCls}-thead`}>
+    <WrapperComponent className={`${prefixCls}-thead`} style={styles}>
       {rows.map((row, rowIndex) => {
         const rowNode = (
           <HeaderRow

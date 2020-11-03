@@ -75,7 +75,7 @@ const Demo = () => {
   const [longText, longTextProps] = useCheckbox(false);
   const [fixHeader, fixHeaderProps] = useCheckbox(true);
   const [fixLeft, fixLeftProps] = useCheckbox(true);
-  const [fixRight, fixRightProps] = useCheckbox(true);
+  const [fixRight, fixRightProps] = useCheckbox(false);
   const [fixTitle3, fixTitle3Props] = useCheckbox(false);
   const [ellipsis, ellipsisProps] = useCheckbox(false);
   const [percentage, percentageProps] = useCheckbox(false);
