@@ -76,7 +76,7 @@ const Demo = () => {
   const [fixHeader, fixHeaderProps] = useCheckbox(true);
   const [fixLeft, fixLeftProps] = useCheckbox(true);
   const [fixRight, fixRightProps] = useCheckbox(false);
-  const [fixTitle3, fixTitle3Props] = useCheckbox(false);
+  const [fixTitle3, fixTitle3Props] = useCheckbox(true);
   const [ellipsis, ellipsisProps] = useCheckbox(false);
   const [percentage, percentageProps] = useCheckbox(false);
   const [empty, emptyProps] = useCheckbox(false);

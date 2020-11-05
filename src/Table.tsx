@@ -91,6 +91,8 @@ interface MemoTableContentProps {
   props: any;
 }
 
+const doNothing = () => null;
+
 const MemoTableContent = React.memo<MemoTableContentProps>(
   ({ children }) => children as React.ReactElement,
 
@@ -206,7 +208,7 @@ function Table<RecordType extends DefaultRecordType>(props: TableProps<RecordTyp
   // ===================== Effects ======================
   const [scrollbarSize, setScrollbarSize] = React.useState(0);
 
-  const scrollPosition: ScrollPosition = 'both';
+  // const scrollPosition: ScrollPosition = 'both';
 
 
   React.useEffect(() => {
@@ -237,6 +239,8 @@ function Table<RecordType extends DefaultRecordType>(props: TableProps<RecordTyp
     [components],
   );
 
+  let lastScrollTop: number = 0;
+  let lastScrollLeft: number = 0;
 
   // ==================== Store ==========================
   const store = React.useMemo(() => create({
@@ -451,6 +455,8 @@ function Table<RecordType extends DefaultRecordType>(props: TableProps<RecordTyp
   const fullTableRef = React.useRef<HTMLDivElement>();
   const scrollHeaderRef = React.useRef<HTMLDivElement>();
   const scrollBodyRef = React.useRef<HTMLDivElement>();
+  const fixedColumnsBodyLeft = React.useRef<HTMLDivElement>();
+  const fixedColumnsBodyRight = React.useRef<HTMLDivElement>();
   const [pingedLeft, setPingedLeft] = React.useState(false);
   const [pingedRight, setPingedRight] = React.useState(false);
   const [scrollTop, setScrollTop] = React.useState(0);
@@ -466,6 +472,11 @@ function Table<RecordType extends DefaultRecordType>(props: TableProps<RecordTyp
   const fixColumn = horizonScroll && flattenColumns.some(({ fixed }) => fixed);
   const fixLeftColumns: ColumnType<RecordType>[] = columns.filter(({ fixed }) => fixed === 'left');
   const fixRightColumns: ColumnType<RecordType>[] = columns.filter(({ fixed }) => fixed === 'right');
+
+
+  const colsLeftKeys = getColumnsKey(fixLeftColumns);
+  const pureColLeftWidths = colsLeftKeys.map(columnKey => colsWidths.get(columnKey));
+  const colLeftWidths = React.useMemo(() => pureColLeftWidths, [pureColLeftWidths.join('_')]);
 
   // Sticky
   const stickyRef = React.useRef<{ setScrollLeft: (left: number) => void }>();
@@ -518,6 +529,36 @@ function Table<RecordType extends DefaultRecordType>(props: TableProps<RecordTyp
     }
   }
 
+  const handleBodyScrollTop = target => {
+    // Fix https://github.com/ant-design/ant-design/issues/9033
+    // const { headTable, bodyTable, fixedColumnsBodyLeft, fixedColumnsBodyRight } = this;
+    if (target.scrollTop !== lastScrollTop && scroll.y && target !== scrollHeaderRef.current) {
+      const { scrollTop: scrollTopTarget } = target;
+      if (fixedColumnsBodyLeft.current && target !== fixedColumnsBodyLeft.current) {
+        fixedColumnsBodyLeft.current.scrollTop = scrollTopTarget;
+      }
+      if (fixedColumnsBodyRight.current && target !== fixedColumnsBodyRight.current) {
+        fixedColumnsBodyRight.current.scrollTop = scrollTopTarget;
+      }
+      if (scrollBodyRef.current && target !== scrollBodyRef.current) {
+        scrollBodyRef.current.scrollTop = scrollTopTarget;
+      }
+    }
+    // Remember last scrollTop for scroll direction detecting.
+    lastScrollTop = target.scrollTop;
+  };
+
+  const onScrollTop = e => {
+    // console.log(111);
+
+    // handleBodyScrollTop(e.target);
+    if (!getScrollTarget() || getScrollTarget() === e.target) {
+      setScrollTarget(e.target);
+      handleBodyScrollTop(e.target);
+    }
+    // console.log(!getScrollTarget() || getScrollTarget() === e.target);
+  }
+
   const onScroll = ({
     currentTarget,
     scrollLeft,
@@ -525,24 +566,30 @@ function Table<RecordType extends DefaultRecordType>(props: TableProps<RecordTyp
     currentTarget: HTMLElement;
     scrollLeft?: number;
   }) => {
-    // console.log(currentTarget);
+  
     const mergedScrollLeft = typeof scrollLeft === 'number' ? scrollLeft : currentTarget.scrollLeft;
-
     const compareTarget = currentTarget || EMPTY_SCROLL_TARGET;
     if (!getScrollTarget() || getScrollTarget() === compareTarget) {
       setScrollTarget(compareTarget);
+      handleBodyScrollTop(currentTarget);
 
-      forceScroll(mergedScrollLeft, scrollHeaderRef.current);
-      forceScroll(mergedScrollLeft, scrollBodyRef.current);
-      forceScroll(mergedScrollLeft, stickyRef.current?.setScrollLeft);
-    }
+      if (mergedScrollLeft !== lastScrollLeft && scroll.x) {
+        setScrollTarget(compareTarget);
 
-    if (currentTarget) {
-      const { scrollWidth, clientWidth } = currentTarget;
-      setPingedLeft(mergedScrollLeft > 0);
-      setPingedRight(mergedScrollLeft < scrollWidth - clientWidth);
+        forceScroll(mergedScrollLeft, scrollHeaderRef.current);
+        forceScroll(mergedScrollLeft, scrollBodyRef.current);
+        forceScroll(mergedScrollLeft, stickyRef.current?.setScrollLeft);
+        
+        lastScrollLeft = mergedScrollLeft;
+
+        if (currentTarget) {
+          const { scrollWidth, clientWidth } = currentTarget;
+          setPingedLeft(mergedScrollLeft > 0);
+          setPingedRight(mergedScrollLeft < scrollWidth - clientWidth);
+        }
+      }
     }
-  };
+  }
 
   const triggerOnScroll = () => {
     if (scrollBodyRef.current) {
@@ -633,6 +680,8 @@ function Table<RecordType extends DefaultRecordType>(props: TableProps<RecordTyp
 
   // Empty
   const emptyNode: React.ReactNode = React.useMemo(() => {
+    // const { fixed } = React.useContext(BodyContext);
+    // if (fixed) return null;
     if (hasData) {
       return null;
     }
@@ -850,29 +899,32 @@ function Table<RecordType extends DefaultRecordType>(props: TableProps<RecordTyp
             ...scrollXStyle,
             ...scrollYStyle,
           }}
-          onScroll={onScroll}
-          ref={scrollBodyRef}
-          className={classNames(`${prefixCls}-body`)}
+          onScroll={onScrollTop}
+          ref={fixedColumnsBodyLeft}
+          className={classNames(`${prefixCls}-body-inner`)}
         >
           <TableComponent
             style={{
               ...scrollTableStyle,
               tableLayout: mergedTableLayout,
+              width: BodyContextValueOnlyFixedLeftColumns.componentWidth,
+              minWidth: BodyContextValueOnlyFixedLeftColumns.componentWidth,
             }}
           >
             {bodyColGroupLeft}
             {bodyTable}
             {footerTable}
           </TableComponent>
+          { hasData &&  <div className="place-holder" style={{ height: 15 }}></div> }
 
-          {isSticky && (
+          {/* {isSticky && (
             <StickyScrollBar
               ref={stickyRef}
               offsetScroll={offsetScroll}
-              scrollBodyRef={scrollBodyRef}
+              scrollBodyRef={null}
               onScroll={onScroll}
             />
-          )}
+          )} */}
         </div>
       );
 
@@ -883,28 +935,42 @@ function Table<RecordType extends DefaultRecordType>(props: TableProps<RecordTyp
             ...scrollYStyle,
           }}
           className={classNames(`${prefixCls}-content`)}
-          onScroll={onScroll}
+        // onScroll={onScroll}
         >
           <div className={classNames(`${prefixCls}-fixed-left`)}>
             {/* Header Table */}
             {showHeader !== false && (
               <FixedHeader
                 noData={!mergedData.length}
-                {...headerProps}
+                // {...headerProps}
                 // {...columnContext}
+                colWidths={fixLeftColumns.map(c => Number(c.width))}
+                fixHeader
+                fixed
+                onHeaderRow={onHeaderRow}
+                columCount={fixLeftColumns.length}
                 columns={fixLeftColumns}
                 flattenColumns={fixLeftColumns}
                 direction={direction}
                 // Fixed Props
                 offsetHeader={offsetHeader}
                 stickyClassName={stickyClassName}
-                ref={scrollHeaderRef}
-                onScroll={onScroll}
+                // ref={scrollHeaderRef}
+                onScroll={doNothing}
               />
             )}
 
             {/* Body Table */}
-            {bodyContent}
+            <div
+              className={classNames(`${prefixCls}-body-outer`)}
+              style={{
+                marginBottom: hasData ? -15 : 0,
+                paddingBottom: 0,
+              }}
+            >
+              {bodyContent}
+            </div>
+
           </div>
         </div>
       );
@@ -934,12 +1000,100 @@ function Table<RecordType extends DefaultRecordType>(props: TableProps<RecordTyp
   }
 
   const renderRightFixedTable = () => {
-    // console.log(BodyContextValueOnlyFixedLeftColumns);
+    let groupTableNodeRight: React.ReactNode;
     const bodyColGroupRight = (
       <ColGroup colWidths={BodyContextValueOnlyFixedRightColumns.flattenColumns.map(({ width }) => width)} columns={BodyContextValueOnlyFixedRightColumns.flattenColumns} />
     );
-    return <BodyContext.Provider value={BodyContextValueOnlyFixedRightColumns}>
-      <div
+
+    if (fixHeader || isSticky) {
+      const bodyContent = (
+        <div
+          style={{
+            ...scrollXStyle,
+            ...scrollYStyle,
+            ...{
+              marginBottom: hasData ? -15 : 0,
+            }
+          }}
+          onScroll={onScroll}
+          ref={fixedColumnsBodyRight}
+          className={classNames(`${prefixCls}-body-inner`)}
+        >
+          <TableComponent
+            style={{
+              ...scrollTableStyle,
+              tableLayout: mergedTableLayout,
+              width: BodyContextValueOnlyFixedRightColumns.componentWidth,
+              minWidth: BodyContextValueOnlyFixedRightColumns.componentWidth,
+            }}
+          >
+            {bodyColGroupRight}
+            {bodyTable}
+            {footerTable}
+          </TableComponent>
+          {
+            hasData && <div className="place-holder" style={{ height: 15 }}></div>
+          }
+          
+          {isSticky && (
+            <StickyScrollBar
+              ref={stickyRef}
+              offsetScroll={offsetScroll}
+              scrollBodyRef={null}
+              onScroll={onScroll}
+            />
+          )}
+        </div>
+      );
+
+      groupTableNodeRight = (
+        <div
+          style={{
+            ...scrollXStyle,
+            ...scrollYStyle,
+          }}
+          className={classNames(`${prefixCls}-content`)}
+        // onScroll={onScroll}
+        >
+          <div className={classNames(`${prefixCls}-fixed-right`)}>
+            {/* Header Table */}
+            {showHeader !== false && (
+              <FixedHeader
+                noData={!mergedData.length}
+                // {...headerProps}
+                // {...columnContext}
+                colWidths={fixRightColumns.map(c => Number(c.width))}
+                fixHeader
+                fixed
+                onHeaderRow={onHeaderRow}
+                columCount={fixRightColumns.length}
+                columns={fixRightColumns}
+                flattenColumns={fixRightColumns}
+                direction={direction}
+                // Fixed Props
+                offsetHeader={offsetHeader}
+                stickyClassName={stickyClassName}
+                // ref={scrollHeaderRef}
+                onScroll={onScroll}
+              />
+            )}
+
+            {/* Body Table */}
+            <div
+              className={`${prefixCls}-body-outer`}
+              style={{
+                // marginBottom: -15,
+                paddingBottom: 0,
+              }}
+            >
+              {bodyContent}
+            </div>
+
+          </div>
+        </div>
+      );
+    } else {
+      groupTableNodeRight = (<div
         style={{
           ...scrollXStyle,
           ...scrollYStyle,
@@ -955,9 +1109,12 @@ function Table<RecordType extends DefaultRecordType>(props: TableProps<RecordTyp
             {footerTable}
           </TableComponent>
         </div>
+      </div>)
+    }
 
-      </div>
-    </BodyContext.Provider>
+    return <BodyContext.Provider value={BodyContextValueOnlyFixedRightColumns}>
+      {groupTableNodeRight}
+    </BodyContext.Provider >
   }
 
   let fullTable = (

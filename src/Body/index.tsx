@@ -31,7 +31,7 @@ function Body<RecordType>({
 }: BodyProps<RecordType>) {
   const { onColumnResize } = React.useContext(ResizeContext);
   const { prefixCls, getComponent } = React.useContext(TableContext);
-  const { fixHeader, horizonScroll, flattenColumns, componentWidth } = React.useContext(
+  const { fixHeader, horizonScroll, flattenColumns, componentWidth, fixed } = React.useContext(
     BodyContext,
   );
 
@@ -76,7 +76,7 @@ function Body<RecordType>({
           cellComponent={tdComponent}
           colSpan={flattenColumns.length}
         >
-          {emptyNode}
+          <div style={{ visibility: fixed ? 'hidden' : 'inherit' }}>{emptyNode}</div>
         </ExpandedRow>
       );
     }

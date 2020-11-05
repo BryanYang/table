@@ -30,6 +30,7 @@ export interface FixedHeaderProps<RecordType> extends HeaderProps<RecordType> {
   fixHeader: boolean;
   offsetHeader: number;
   stickyClassName?: string;
+  fixed?: boolean;
   onScroll: (info: { currentTarget: HTMLDivElement; scrollLeft?: number }) => void;
 }
 
@@ -47,6 +48,7 @@ const FixedHeader = React.forwardRef<HTMLDivElement, FixedHeaderProps<unknown>>(
       offsetHeader,
       stickyClassName,
       onScroll,
+      fixed,
       ...props
     },
     ref,
@@ -114,10 +116,6 @@ const FixedHeader = React.forwardRef<HTMLDivElement, FixedHeaderProps<unknown>>(
 
     const mergedColumnWidth = useColumnWidth(colWidths, columCount);
 
-    console.log(colWidths);
-    console.log(combinationScrollBarSize);
-    console.log(columCount);
-    console.log(columns);
     return (
       <div
         style={{
@@ -133,19 +131,20 @@ const FixedHeader = React.forwardRef<HTMLDivElement, FixedHeaderProps<unknown>>(
           style={{
             tableLayout: 'fixed',
             visibility: noData || mergedColumnWidth ? null : 'hidden',
-            width: 160,
+            width: fixed ? 'auto' : '100%',
           }}
         >
-          {/* <ColGroup
+          <ColGroup
             colWidths={mergedColumnWidth ? [...mergedColumnWidth, combinationScrollBarSize] : []}
-            columCount={columCount + 1}
-            // columns={flattenColumnsWithScrollbar}
-          /> */}
+            columCount={fixed ? columCount : columCount + 1}
+            columns={fixed ? flattenColumns : flattenColumnsWithScrollbar}
+          />
           <Header
             {...props}
             // stickyOffsets={headerStickyOffsets}
-            columns={columnsWithScrollbar}
-            flattenColumns={flattenColumnsWithScrollbar}
+            columns={fixed ? flattenColumns : columnsWithScrollbar}
+            flattenColumns={fixed ? flattenColumns : flattenColumnsWithScrollbar}
+            fixed={fixed}
           />
         </table>
       </div>

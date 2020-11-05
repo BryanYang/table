@@ -34,7 +34,7 @@ function ExpandedRow<RecordType>({
   style,
 }: ExpandedRowProps<RecordType>, ref) {
   const { scrollbarSize } = React.useContext(TableContext);
-  const { height } = style;
+  const { height } = style || {};
   // Cache render node
   return React.useMemo(() => {
     let contentNode = children;
