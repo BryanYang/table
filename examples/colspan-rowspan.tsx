@@ -133,13 +133,23 @@ const data: RecordType[] = [
   { a: '13812988888', b: '0571-099877', c: '李四', d: '文二西路', e: 'Male', key: '3' },
   { a: '1381200008888', b: '0571-099877', c: '王五', d: '文二西路', e: 'Male', key: '4' },
   { a: '0571-88888110', c: '李警官', d: '武林门', e: 'Male', key: '5' },
+  { a: '0571-88888111', c: '李警官', d: '武林门', e: 'Male', key: '7' },
+  { a: '0571-88888110', c: '李警官', d: '武林门', e: 'Male', key: '8' },
+  { a: '0571-88888110', c: '李警官', d: '武林门', e: 'Male', key: '9' },
+  { a: '0571-88888110', c: '李警官', d: '武林门', e: 'Male', key: '10' },
+  { a: '0571-88888110', c: '李警官', d: '武林门', e: 'Male', key: '11' },
+  { a: '0571-88888110', c: '李警官', d: '武林门', e: 'Male', key: '12' },
+  { a: '0571-88888110', c: '李警官', d: '武林门', e: 'Male', key: '13' },
+  { a: '0571-88888110', c: '李警官', d: '武林门', e: 'Male', key: '14' },
+  { a: '0571-88888110', c: '李警官', d: '武林门', e: 'Male', key: '15' },
+  { a: '0571-88888110', c: '李警官', d: '武林门', e: 'Male', key: '16' },
   { a: '资料统计完毕于xxxx年xxx月xxx日', key: '6' },
 ];
 
 const Demo = () => (
   <div>
     <h2>colSpan & rowSpan</h2>
-    <Table columns={columns} data={data} className="table" />
+    <Table columns={columns} data={data} className="table" sticky />
   </div>
 );
 

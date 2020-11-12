@@ -6,18 +6,29 @@ import '../assets/index.less';
 import { ColumnType } from '../src/interface';
 
 interface RecordType {
-  a: string;
-  b?: string;
-  c?: string;
+  a: sTring;
+  b?: sTring;
+  c?: sTring;
   d?: number;
   value?: number;
   value2?: number;
-  key: string;
+  key: sTring;
 }
 
 const data: RecordType[] = [
   { a: '123', key: '1' },
   { a: 'cdd', b: 'edd', key: '2' },
+  { a: 'cdd', b: 'edd', key: '4' },
+  { a: 'cdd', b: 'edd', key: '5' },
+  { a: 'cdd', b: 'edd', key: '6' },
+  { a: 'cdd', b: 'edd', key: '7' },
+  { a: 'cdd', b: 'edd', key: '8' },
+  { a: 'cdd', b: 'edd', key: '9' },
+  { a: 'cdd', b: 'edd', key: '10' },
+  { a: 'cdd', b: 'edd', key: '11' },
+  { a: 'cdd', b: 'edd', key: '12' },
+  { a: 'cdd', b: 'edd', key: '13' },
+  { a: 'cdd', b: 'edd', key: '14' },
   { a: '1333', c: 'eee', d: 2, key: '3' },
 ];
 
@@ -60,24 +71,26 @@ const Demo = () => {
         columns={columns}
         data={data}
         scroll={{ x: fixColumns ? 2000 : null }}
-        title={currentData => <div>Title: {currentData.length} items</div>}
-        footer={currentData => <div>Footer: {currentData.length} items</div>}
-        summary={currentData => (
+        // title={currentData => <div>Title: {currentData.length} items</div>}
+        sticky
+        // footer={currentData => <div>Footer: {currentData.length} items</div>}
+        summary={(currentData, Tr, Td) => (
           <>
-            <tr>
-              <th colSpan={6}>Summary</th>
-            </tr>
-            <tr>
-              <td>-</td>
-              <td>-</td>
-              <td>-</td>
-              <td>{currentData.reduce((total, item) => total + item.value, 0)}</td>
-              <td>{currentData.reduce((total, item) => total + item.value2, 0)}</td>
-              <td>-</td>
-            </tr>
+            {/* <Tr rowKey="1">
+              <th style={{background: '#f7f7f7'}} colSpan={6}>Summary</th>
+            </Tr> */}
+            <Tr rowKey="2">
+              <Td>-</Td>
+              <Td>大开发卡戴珊开发局阿卡丽圣诞节疯狂拉圣诞节快乐非建安克鲁赛德是的咖啡机克鲁赛德就</Td>
+              <Td>-</Td>
+              <Td>{currentData.reduce((total, item) => total + item.value, 0)}</Td>
+              <Td>{currentData.reduce((total, item) => total + item.value2, 0)}</Td>
+              <Td>-</Td>
+            </Tr>
           </>
         )}
       />
+      <div style={{height: 400}}></div>
     </div>
   );
 };

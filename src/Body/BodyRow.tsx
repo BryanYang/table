@@ -5,7 +5,7 @@ import Cell from '../Cell';
 import TableContext from '../context/TableContext';
 import BodyContext from '../context/BodyContext';
 import { getColumnsKey } from '../utils/valueUtil';
-import { ColumnType, CustomizeComponent, GetComponentProps, Key, GetRowKey, TableStoreState, TableStore, DefaultRecordType } from '../interface';
+import { ColumnType, CustomizeComponent, GetComponentProps, Key, GetRowKey, TableStoreState, TableStore, DefaultRecordType, RowHoverEventHandler, } from '../interface';
 import ExpandedRow from './ExpandedRow';
 
 export interface BodyRowProps<RecordType> {
@@ -29,6 +29,8 @@ export interface BodyRowProps<RecordType> {
   childrenColumnName: string;
   ancestorKeys?: Key[];
   store: TableStore;
+  hovered?: boolean;
+  onHover?: RowHoverEventHandler;
 }
 
 function BodyRow<RecordType extends { children?: RecordType[] }>(props: BodyRowProps<RecordType>) {
@@ -48,6 +50,8 @@ function BodyRow<RecordType extends { children?: RecordType[] }>(props: BodyRowP
     childrenColumnName,
     heightFun,
     store,
+    hovered,
+    onHover,
   } = props;
   const { prefixCls } = React.useContext(TableContext);
   const {
@@ -122,6 +126,20 @@ function BodyRow<RecordType extends { children?: RecordType[] }>(props: BodyRowP
       additionalProps.onClick(event, ...args);
     }
   };
+  
+  const onMouseEnter: React.MouseEventHandler<HTMLElement> = React.useCallback((event, ...args) => {
+    if (additionalProps?.onMouseEnter) {
+      additionalProps.onMouseEnter(event, ...args);
+    }
+    onHover?.(true, rowKey)
+  }, [rowKey]);
+
+  const onMouseLeave: React.MouseEventHandler<HTMLElement> = React.useCallback((event, ...args) => {
+    if (additionalProps?.onMouseLeave) {
+      additionalProps.onMouseLeave(event, ...args);
+    }
+    onHover?.(false, '');
+  }, []);
 
   // ======================== Base tr row ========================
   let computeRowClassName: string;
@@ -145,6 +163,7 @@ function BodyRow<RecordType extends { children?: RecordType[] }>(props: BodyRowP
         `${prefixCls}-row-level-${indent}`,
         computeRowClassName,
         additionalProps && additionalProps.className,
+        hovered && `${prefixCls}-row-hover`,
       )}
       style={{
         height,
@@ -152,6 +171,8 @@ function BodyRow<RecordType extends { children?: RecordType[] }>(props: BodyRowP
         ...(additionalProps ? additionalProps.style : null),
       }}
       onClick={onClick}
+      onMouseEnter={onMouseEnter}
+      onMouseLeave={onMouseLeave}
     >
       {flattenColumns.map((column: ColumnType<RecordType>, colIndex) => {
         const { render, dataIndex, className: columnClassName } = column;
@@ -278,6 +299,8 @@ function getRowHeight(state: TableStoreState, props: BodyRowProps<DefaultRecordT
   if (!fixed) {
     return null;
   }
+
+  // console.log(fixedColumnsBodyRowsHeight);
 
   return {
     height: fixedColumnsBodyRowsHeight[rowKey],

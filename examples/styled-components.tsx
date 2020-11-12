@@ -4,9 +4,9 @@ import Table from '../src';
 import '../assets/index.less';
 
 const columns = [
-  { title: 'title1', dataIndex: 'a', key: 'a', width: 100 },
+  { title: 'title1', dataIndex: 'a', key: 'a', fixed: 'left' , width: 100 },
   { id: '123', title: 'title2', dataIndex: 'b', key: 'b', width: 100 },
-  { title: 'title3', dataIndex: 'c', key: 'c', width: 200 },
+  { title: 'title3', dataIndex: 'c', key: 'c' },
   {
     title: 'Operations',
     dataIndex: '',

@@ -29,6 +29,37 @@
     direction: rtl;
   }
 
+  tr:hover{
+    td {
+
+    background: @table-head-background-color !important;
+    }
+  }
+
+  &-row-hover {
+
+        td {
+          background: @table-head-background-color !important;
+        }
+  }
+
+  &-summary {
+    will-change: transform;
+    td {
+
+    border-top: 1px !important;
+    }
+  }
+
+  &-cell-ellipsis-content {
+    // white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    -webkit-line-clamp: 2;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+  }
+
 
   &-fixed-left, &-fixed-right {
     position: absolute;
@@ -101,6 +132,8 @@
       border-right: 0;
     }
   }
+
+
 
   th {
     position: relative;
@@ -340,11 +373,12 @@
   tfoot {
     td {
       background: #fff;
+      border-top: 1px solid red;
     }
   }
   &-sticky {
     &-header {
-      position: sticky;
+      // position: sticky;
       z-index: 2;
     }
     &-scroll {

@@ -1,7 +1,7 @@
 import * as React from 'react';
 import BodyRow from './BodyRow';
 import TableContext from '../context/TableContext';
-import { GetRowKey, Key, GetComponentProps } from '../interface';
+import { GetRowKey, Key, GetComponentProps, RowHoverEventHandler, TableStore } from '../interface';
 import ExpandedRow from './ExpandedRow';
 import BodyContext from '../context/BodyContext';
 import { getColumnsKey } from '../utils/valueUtil';
@@ -17,6 +17,7 @@ export interface BodyProps<RecordType> {
   rowExpandable: (record: RecordType) => boolean;
   emptyNode: React.ReactNode;
   childrenColumnName: string;
+  store: TableStore;
 }
 
 function Body<RecordType>({
@@ -28,10 +29,11 @@ function Body<RecordType>({
   rowExpandable,
   emptyNode,
   childrenColumnName,
+  store,
 }: BodyProps<RecordType>) {
   const { onColumnResize } = React.useContext(ResizeContext);
   const { prefixCls, getComponent } = React.useContext(TableContext);
-  const { fixHeader, horizonScroll, flattenColumns, componentWidth, fixed } = React.useContext(
+  const { fixHeader, horizonScroll, flattenColumns, componentWidth, fixed, fixColumn } = React.useContext(
     BodyContext,
   );
 
@@ -41,6 +43,19 @@ function Body<RecordType>({
     const tdComponent = getComponent(['body', 'cell'], 'td');
 
     let rows: React.ReactNode;
+
+    const handleRowHover: RowHoverEventHandler = (isHover, key) => {
+      store.setState({
+        currentHoverKey: isHover ? key : null,
+      });
+    };
+  
+    const onHoverProps: { onHover?: RowHoverEventHandler } = {};
+    if (fixColumn) {
+      onHoverProps.onHover = handleRowHover;
+    }
+
+    
     if (data.length) {
       rows = data.map((record, index) => {
         const key = getRowKey(record, index);
@@ -59,6 +74,7 @@ function Body<RecordType>({
             getRowKey={getRowKey}
             rowExpandable={rowExpandable}
             childrenColumnName={childrenColumnName}
+            {...onHoverProps}
           />
         );
       });

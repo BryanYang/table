@@ -45,6 +45,8 @@ export type RowClassName<RecordType> = (
   indent: number,
 ) => string;
 
+export type RowHoverEventHandler = (isHover: boolean, key: Key) => void;
+
 // =================== Column ===================
 export interface CellType<RecordType> {
   key?: Key;

@@ -60,6 +60,7 @@ const StickyScrollBar: React.ForwardRefRenderFunction<unknown, StickyScrollBarPr
       }
       return;
     }
+    // console.log(refState);
     let left: number =
       refState.current.x + event.pageX - refState.current.x - refState.current.delta;
 

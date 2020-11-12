@@ -108,12 +108,13 @@ function Header<RecordType>({
   const trComponent = getComponent(['header', 'row'], 'tr');
   const thComponent = getComponent(['header', 'cell'], 'th');
   
-  const styles = scrollTop > 0 ? {
-    transform: `translateY(${scrollTop}px)`
-  } : undefined;
+  // const styles = scrollTop > 0 ? {
+  //   transform: `translateY(${scrollTop}px)`
+  // } : undefined;
 
+  // console.log(scrollTop);
   return (
-    <WrapperComponent className={`${prefixCls}-thead`} style={styles}>
+    <WrapperComponent className={`${prefixCls}-thead`} >
       {rows.map((row, rowIndex) => {
         const rowNode = (
           <HeaderRow

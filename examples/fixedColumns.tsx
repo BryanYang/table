@@ -63,6 +63,7 @@ const Demo = () => (
       expandedRowRender={({ b, c }) => b || c}
       scroll={{ x: 1200 }}
       data={data}
+      sticky
       // summary={() => (
       //   <>
       //     <Table.Summary.Row>

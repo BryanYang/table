@@ -119,7 +119,7 @@ const FixedHeader = React.forwardRef<HTMLDivElement, FixedHeaderProps<unknown>>(
     return (
       <div
         style={{
-          overflow: 'hidden',
+          overflow:  fixed ? 'visible' : 'hidden',
           ...(isSticky ? { top: offsetHeader } : {}),
         }}
         ref={setScrollRef}
@@ -142,7 +142,7 @@ const FixedHeader = React.forwardRef<HTMLDivElement, FixedHeaderProps<unknown>>(
           <Header
             {...props}
             // stickyOffsets={headerStickyOffsets}
-            columns={fixed ? flattenColumns : columnsWithScrollbar}
+            columns={fixed ? columns : columnsWithScrollbar}
             flattenColumns={fixed ? flattenColumns : flattenColumnsWithScrollbar}
             fixed={fixed}
           />

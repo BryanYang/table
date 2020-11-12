@@ -28,6 +28,7 @@ const longTextData: RecordType[] = [...originData];
 longTextData[0] = {
   ...longTextData[0],
   a: 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
+  d: '打开了复健科垃圾的时空裂缝就爱斯达克了房价打开了复健科垃圾的时空裂缝就爱斯达克了房价打开了复健科垃圾的时空裂缝就爱斯达克了房价打开了复健科垃圾的时空裂缝就爱斯达克了房价打开了复健科垃圾的时空裂缝就爱斯达克了房价打开了复健科垃圾的时空裂缝就爱斯达克了房价打开了复健科垃圾的时空裂缝就爱斯达克了房价打开了复健科垃圾的时空裂缝就爱斯达克了房价'
 };
 
 const useColumn = (
@@ -41,7 +42,7 @@ const useColumn = (
     () => [
       {
         title: 'title1',
-        dataIndex: 'a',
+        dataIndex: 'b',
         key: 'a',
         width: percentage ? '10%' : 80,
         fixed: fixLeft ? 'left' : null,
@@ -52,11 +53,11 @@ const useColumn = (
         title: 'title3',
         fixed: fixLeft && fixTitle ? 'left' : null,
         children: [
-          { title: 'title4', dataIndex: 'c', key: 'd', width: 100 },
-          { title: 'title5', dataIndex: 'c', key: 'e', width: 100 },
+          { title: 'title4', dataIndex: 'a', key: 'd', width: 100,    fixed: fixLeft && fixTitle ? 'left' : null, },
+          { title: 'title5', dataIndex: 'c', key: 'e', width: 100,    fixed: fixLeft && fixTitle ? 'left' : null, },
         ],
       },
-      { title: 'title6', dataIndex: 'c', key: 'f' },
+      { title: 'title6', dataIndex: 'd', key: 'f', ellipsis },
       { title: 'title7', dataIndex: 'c', key: 'g' },
       { title: 'title8', dataIndex: 'c', key: 'h' },
       { title: 'title9', dataIndex: 'b', key: 'i' },
@@ -72,7 +73,7 @@ const useColumn = (
 
 const Demo = () => {
   const [autoWidth, autoWidthProps] = useCheckbox(false);
-  const [isRtl, isRtlProps] = useCheckbox(true);
+  const [isRtl, isRtlProps] = useCheckbox(false);
   const [longText, longTextProps] = useCheckbox(false);
   const [fixHeader, fixHeaderProps] = useCheckbox(true);
   const [fixLeft, fixLeftProps] = useCheckbox(true);
@@ -98,7 +99,7 @@ const Demo = () => {
         <h2>Fixed columns and header in RTL direction</h2>
 
         <label>
-          <input {...isRtlProps} />
+          <input {...isRtlProps} disabled />
           IsRtl
         </label>
         <label>

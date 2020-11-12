@@ -27,7 +27,7 @@ const originData: RecordType[] = [
 const longTextData: RecordType[] = [...originData];
 longTextData[0] = {
   ...longTextData[0],
-  a: 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
+  c: 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
 };
 
 const useColumn = (
@@ -48,12 +48,13 @@ const useColumn = (
         ellipsis,
       },
       { title: 'title2', dataIndex: 'b', key: 'b', width: 80, fixed: fixLeft ? 'left' : null },
+      // { title: 'title6', dataIndex: 'c', key: 'f', fixed: 'left', width: 100 },
       {
         title: 'title3',
         fixed: fixLeft && fixTitle ? 'left' : null,
         children: [
-          { title: 'title4', dataIndex: 'c', key: 'd', width: 100 },
-          { title: 'title5', dataIndex: 'c', key: 'e', width: 100 },
+          { title: 'title4', dataIndex: 'c', key: 'd', width: 100, fixed: fixLeft && fixTitle ? 'left' : null },
+          { title: 'title5', dataIndex: 'c', key: 'e', width: 100, fixed: fixLeft && fixTitle ? 'left' : null },
         ],
       },
       { title: 'title6', dataIndex: 'c', key: 'f' },
@@ -73,12 +74,13 @@ const useColumn = (
 const Demo = () => {
   const [autoWidth, autoWidthProps] = useCheckbox(false);
   const [longText, longTextProps] = useCheckbox(false);
-  const [fixHeader, fixHeaderProps] = useCheckbox(true);
+  const [fixHeader, fixHeaderProps] = useCheckbox(false);
   const [fixLeft, fixLeftProps] = useCheckbox(true);
-  const [fixRight, fixRightProps] = useCheckbox(false);
-  const [fixTitle3, fixTitle3Props] = useCheckbox(true);
+  const [fixRight, fixRightProps] = useCheckbox(true);
+  const [fixTitle3, fixTitle3Props] = useCheckbox(false);
   const [ellipsis, ellipsisProps] = useCheckbox(false);
   const [percentage, percentageProps] = useCheckbox(false);
+  const [sticky, stickyProps] = useCheckbox(false);
   const [empty, emptyProps] = useCheckbox(false);
   const columns = useColumn(fixLeft, fixTitle3, fixRight, ellipsis, percentage);
 
@@ -109,6 +111,10 @@ const Demo = () => {
           Fix Header
         </label>
         <label>
+          <input {...stickyProps} />
+          sticky Header
+        </label>
+        <label>
           <input {...fixLeftProps} />
           Fix Left
         </label>
@@ -136,9 +142,11 @@ const Demo = () => {
         <Table<RecordType>
           columns={columns}
           scroll={{ x: 1650, y: fixHeader ? 300 : null }}
+          sticky={sticky}
           data={mergedData}
           style={{ width: autoWidth ? null : 800 }}
         />
+        <div style={{height: 800}}></div>
       </div>
     </React.StrictMode>
   );

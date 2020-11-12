@@ -193,7 +193,7 @@ function Cell<RecordType extends DefaultRecordType>(
         [`${cellPrefixCls}-fix-right`]: isFixRight,
         [`${cellPrefixCls}-fix-right-first`]: firstFixRight,
         [`${cellPrefixCls}-fix-right-last`]: lastFixRight,
-        [`${cellPrefixCls}-ellipsis`]: ellipsis,
+        // [`${cellPrefixCls}-ellipsis`]: ellipsis,
         [`${cellPrefixCls}-with-append`]: appendNode,
         // [`${cellPrefixCls}-fix-sticky`]: (isFixLeft || isFixRight) && isSticky,
       },
@@ -207,7 +207,9 @@ function Cell<RecordType extends DefaultRecordType>(
   return (
     <Component {...componentProps}>
       {appendNode}
-      {childNode}
+      {
+        ellipsis ? <div className={`${cellPrefixCls}-ellipsis-content`}>{childNode}</div> : childNode
+      }
     </Component>
   );
 }
