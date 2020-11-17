@@ -65,6 +65,7 @@ import { Tr, Td, TrComProps } from './Body/Summary';
 import useColumns from './hooks/useColumns';
 import { useFrameState, useTimeoutLock } from './hooks/useFrame';
 import { getPathValue, mergeObject, validateValue, getColumnsKey } from './utils/valueUtil';
+import { getScrollParent } from './utils/domUtil';
 import ResizeContext from './context/ResizeContext';
 // import useStickyOffsets from './hooks/useStickyOffsets';
 import ColGroup from './ColGroup';
@@ -675,15 +676,26 @@ function Table<RecordType extends DefaultRecordType>(props: TableProps<RecordTyp
     // console.log(summaryEle);
   })
 
+  const firstScrollParentTop: number = React.useMemo(() => {
+    const p =  getScrollParent(tableContainerRef.current);
+    if (p) {
+      const { top } = p.getBoundingClientRect();
+      return top;
+    }
+    return 0;
+  }, [tableContainerRef.current]);
+
   // vertical scroll
   React.useEffect(() => {
     if (isSticky) {
       const scrollVertical = () => {
-        const { top, height, bottom } = tableContainerRef.current.getBoundingClientRect();
+        if (!tableContainerRef.current) return;
+        const { top: t, height, bottom } = tableContainerRef.current.getBoundingClientRect();
         // const scrollTopp = document.documentElement.scrollTop;
         // console.log(top + '_' +bottom + '_' + scrollTopp)
         const btm = bottom - document.documentElement.clientHeight - (isHorizonScroll ? 15 : 0);
         // console.log(btm)
+        const top = t - firstScrollParentTop;
         if(-top > 0) {
           const translate = stickyHeaderHeight - top > height - 15 ? (height - stickyHeaderHeight - 15) : -top;
           if(thead) thead.style.transform = `translateY(${Math.round(translate)}px)`;
@@ -705,7 +717,7 @@ function Table<RecordType extends DefaultRecordType>(props: TableProps<RecordTyp
         // eslint-disable-next-line no-param-reassign
         } else if (summaryEles) summaryEles.forEach(summaryEle => { summaryEle.style.transform = 'translateY(0px)'; });
       }
-      window.addEventListener('scroll', scrollVertical);
+      window.addEventListener('scroll', scrollVertical, true);
       return () => {
         window.removeEventListener('scroll', scrollVertical)
       }

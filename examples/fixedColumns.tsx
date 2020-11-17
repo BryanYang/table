@@ -58,12 +58,14 @@ const data: RecordType[] = [
 const Demo = () => (
   <div style={{ width: 800 }}>
     <h2>Fixed columns</h2>
-    <Table
-      columns={columns}
-      expandedRowRender={({ b, c }) => b || c}
-      scroll={{ x: 1200 }}
-      data={data}
-      sticky
+    <div style={{ height: 600, overflow: "scroll" }}>
+      <h1>占位</h1>
+      <Table
+        columns={columns}
+        expandedRowRender={({ b, c }) => b || c}
+        scroll={{ x: 1200 }}
+        data={data}
+        sticky
       // summary={() => (
       //   <>
       //     <Table.Summary.Row>
@@ -78,7 +80,9 @@ const Demo = () => (
       //     </Table.Summary.Row>
       //   </>
       // )}
-    />
+      />
+    </div>
+
   </div>
 );
 
