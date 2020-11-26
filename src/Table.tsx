@@ -28,7 +28,7 @@
 import * as React from 'react';
 import classNames from 'classnames';
 import shallowEqual from 'shallowequal';
-import addEventListener from 'rc-util/lib/Dom/addEventListener';
+// import addEventListener from 'rc-util/lib/Dom/addEventListener';
 import warning from 'rc-util/lib/warning';
 import { Provider, create } from 'mini-store';
 import ResizeObserver from 'rc-resize-observer';
@@ -131,7 +131,7 @@ export interface TableProps<RecordType = unknown> extends LegacyExpandableProps<
   // Additional Part
   title?: PanelRender<RecordType>;
   footer?: PanelRender<RecordType>;
-  summary?: (data: RecordType[], Tr: React.FC<TrComProps<RecordType>>, Td: React.FC<RecordType<RecordType>>) => React.ReactNode;
+  summary?: (data: RecordType[], Tr: React.FC<TrComProps<RecordType>>, Td: React.FC<any>) => React.ReactNode;
 
   // Customize
   id?: string;
@@ -247,8 +247,10 @@ function Table<RecordType extends DefaultRecordType>(props: TableProps<RecordTyp
   // ==================== Store ==========================
   const store = React.useMemo(() => create({
     currentHoverKey: null,
-    fixedColumnsHeadRowsHeight: [],
+    fixedColumnsHeadRowsHeight: {},
     fixedColumnsBodyRowsHeight: {},
+    expandedRowKeys: [],
+    expandedRowsHeight: {},
   }), []);
 
   const syncFixedTableRowHeight = React.useCallback(() => {
@@ -1026,7 +1028,7 @@ function Table<RecordType extends DefaultRecordType>(props: TableProps<RecordTyp
                 // {...columnContext}
                 colWidths={fixLeftFlattenColumns.map(c => Number(c.width))}
                 fixHeader
-                fixed
+                fixed="left"
                 onHeaderRow={onHeaderRow}
                 columCount={fixLeftFlattenColumns.length}
                 columns={fixLeftColumns}
@@ -1146,7 +1148,7 @@ function Table<RecordType extends DefaultRecordType>(props: TableProps<RecordTyp
                 // {...columnContext}
                 colWidths={fixRightFlattenColumns.map(c => Number(c.width))}
                 fixHeader
-                fixed
+                fixed="right"
                 onHeaderRow={onHeaderRow}
                 columCount={fixRightFlattenColumns.length}
                 columns={fixRightColumns}

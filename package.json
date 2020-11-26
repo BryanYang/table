@@ -1,7 +1,7 @@
 {
-  "name": "rc-table",
-  "version": "7.9.10",
-  "description": "table ui component for react",
+  "name": "rms-table",
+  "version": "0.0.1",
+  "description": "table ui component for react, base rc-table 7.9.10",
   "engines": {
     "node": ">=8.x"
   },
@@ -23,8 +23,7 @@
   "types": "./lib/index.d.ts",
   "homepage": "http://github.com/react-component/table",
   "maintainers": [
-    "yiminghe@gmail.com",
-    "afc163@gmail.com"
+    "yanggaofei@meituan.com"
   ],
   "repository": {
     "type": "git",
@@ -51,12 +50,18 @@
     "react-dom": "^16.0.0"
   },
   "dependencies": {
+    "@ant-design/icons": "4.0.0",
     "@babel/runtime": "^7.10.1",
     "classnames": "^2.2.5",
     "component-classes": "^1.2.6",
+    "lodash": "^4.17.20",
     "mini-store": "^3.0.6",
+    "omit.js": "^2.0.2",
     "raf": "^3.4.1",
+    "rc-checkbox": "^2.3.1",
     "rc-resize-observer": "^0.2.0",
+    "rc-select": "^11.5.1",
+    "rc-tree": "^4.0.0-beta.2",
     "rc-util": "^5.0.4",
     "shallowequal": "^1.1.0"
   },
@@ -78,8 +83,8 @@
     "np": "^6.0.0",
     "prettier": "^2.0.1",
     "rc-animate": "^3.0.0",
-    "rc-dropdown": "~3.1.0",
-    "rc-menu": "^8.0.2",
+    "rc-dropdown": "^3.2.0",
+    "rc-menu": "^8.10.1",
     "rc-tooltip": "^4.0.3",
     "react": "^16.0.0",
     "react-dnd": "^2.5.4",

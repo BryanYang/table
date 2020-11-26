@@ -16,7 +16,7 @@ export interface TableContextProps {
 
   isSticky: boolean;
 
-  scrollTop: number;
+  scrollTop?: number;
 }
 
 const TableContext = React.createContext<TableContextProps>(null);

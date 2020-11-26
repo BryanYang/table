@@ -17,9 +17,9 @@ export default function SummaryCell({
   colSpan,
   rowSpan,
 }: SummaryCellProps) {
-  const { prefixCls, fixedInfoList } = React.useContext(TableContext);
+  const { prefixCls } = React.useContext(TableContext);
 
-  const fixedInfo = fixedInfoList[index];
+  // const fixedInfo = fixedInfoList[index];
 
   return (
     <Cell
@@ -36,7 +36,7 @@ export default function SummaryCell({
           rowSpan,
         },
       })}
-      {...fixedInfo}
+      // {...fixedInfo}
     />
   );
 }

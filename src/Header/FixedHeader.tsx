@@ -30,7 +30,7 @@ export interface FixedHeaderProps<RecordType> extends HeaderProps<RecordType> {
   fixHeader: boolean;
   offsetHeader: number;
   stickyClassName?: string;
-  fixed?: boolean;
+  fixed?: string| number;
   onScroll: (info: { currentTarget: HTMLDivElement; scrollLeft?: number }) => void;
 }
 
