@@ -1,5 +1,5 @@
 {
-  "name": "rms-table",
+  "name": "@mtfe/rms-table",
   "version": "0.0.1",
   "description": "table ui component for react, base rc-table 7.9.10",
   "engines": {
@@ -27,7 +27,7 @@
   ],
   "repository": {
     "type": "git",
-    "url": "git@github.com:react-component/table.git"
+    "url": "git+ssh://git@github.com/react-component/table.git"
   },
   "bugs": {
     "url": "http://github.com/react-component/table/issues"
@@ -38,7 +38,7 @@
     "build": "father doc build --storybook",
     "compile": "father build && lessc assets/index.less assets/index.css",
     "gh-pages": "npm run build && father doc deploy",
-    "prepublishOnly": "npm run compile && np --yolo --no-publish",
+    "prepublishOnly": "npm run compile && np --yolo --no-publish --any-branch",
     "postpublish": "npm run gh-pages",
     "lint": "eslint src/ --ext .ts,.tsx,.jsx,.js,.md",
     "prettier": "prettier --write \"**/*.{ts,tsx,js,jsx,json,md}\"",
@@ -96,5 +96,11 @@
     "react-window": "^1.8.5",
     "styled-components": "^5.0.1",
     "typescript": "^4.0.3"
-  }
+  },
+  "directories": {
+    "example": "examples",
+    "lib": "lib",
+    "test": "tests"
+  },
+  "author": ""
 }
