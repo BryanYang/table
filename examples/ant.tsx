@@ -76,13 +76,30 @@ const Demo = () => (
       style={{ width: null }} 
       size="small" 
       scroll={{x: 1000, y: 300}}
-      summary={() => (
-        <Table.Summary.Row style={{ background: '#fafafa' }}>
-          <Table.Summary.Cell index={0}></Table.Summary.Cell>
-          <Table.Summary.Cell index={1} colSpan={6}>This is a summary content</Table.Summary.Cell>
-        </Table.Summary.Row>
+      // summary={() => (
+      //   <Table.Summary.Row style={{ background: '#fafafa' }}>
+      //     <Table.Summary.Cell index={0}></Table.Summary.Cell>
+      //     <Table.Summary.Cell index={1} colSpan={6}>This is a summary content</Table.Summary.Cell>
+      //   </Table.Summary.Row>
+      // )}
+      summary={(currentData, Tr, Td) => (
+        <>
+          {/* <Tr rowKey="1">
+            <th style={{background: '#f7f7f7'}} colSpan={6}>Summary</th>
+          </Tr> */}
+          <Tr rowKey="2">
+            <Td>-</Td>
+            <Td>大开发卡戴珊开发</Td>
+            <Td>-</Td>
+            <Td>{currentData.reduce((total, item) => total + item.value, 0)}</Td>
+            <Td>{currentData.reduce((total, item) => total + item.value2, 0)}</Td>
+            <Td>-</Td>
+            <Td>-</Td>
+          </Tr>
+        </>
       )}
       dataSource={data} />
+      <div style={{ height: 500 }}></div>
   </div>
 );
 

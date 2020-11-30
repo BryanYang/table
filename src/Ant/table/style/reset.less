@@ -1,0 +1,311 @@
+body {
+  // 解决字体周边模糊导致看上去变粗的问题
+  -webkit-font-smoothing: antialiased;
+}
+ 
+.ant-form-item-children {
+  // InputGroup在表单中竖直方向对不齐
+  .ant-input-group {
+    top: 4px;
+  }
+ 
+  // CheckBox在表单中太拥挤
+  .ant-checkbox-group-item {
+    margin: 9px 0;
+  }
+}
+ 
+// 选择器不能太窄
+.ant-select {
+  min-width: 100px;
+}
+ 
+// tag的文字不能选择
+.ant-tag {
+  user-select: none;
+}
+ 
+// Btn组里的btn之间不能有间距
+.ant-btn-group {
+  .ant-btn {
+    margin-right: 0 !important;
+  }
+}
+ 
+.ant-modal-body {
+  max-height: 500px;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+ 
+// 一列全部数字的行太长会撑破表格导致其它列看不到
+.ant-table .ant-table-content .ant-table-body table {
+  td,
+  th {
+    word-break: break-all;
+ 
+    //在表格中的输入框（ant-form-item），需要设置 margin: -9.5px 0; 保证表格不会被撑高
+    .ant-form-item {
+      margin: -9.5px 0;
+    }
+  }
+ 
+  tr.ant-table-row-selected td {
+    background-color: #fff;
+  }
+}
+ 
+a {
+  color: @link-color;
+  font-weight: 500;
+ 
+  &:hover {
+    color: @link-color;
+  }
+}
+ 
+// 重置alert颜色
+.ant-alert {
+  &-info {
+    background-color: #f8f8f8 !important;
+    border-color: #ededed !important;
+ 
+    .ant-alert-icon {
+      color: #6ab1ff !important;
+    }
+  }
+}
+ 
+button.ant-btn {
+  // 这个查询按钮有个 1px 的 text-shadow 要覆盖掉，不然看着字是糊的
+  text-shadow: none !important;
+  box-shadow: none !important;
+ 
+  &:hover,
+  &:active,
+  &:focus {
+    color: @link-color;
+    border-color: @border-color-base;
+  }
+}
+ 
+button.ant-btn-primary {
+  &:hover,
+  &:active,
+  &:focus {
+    color: @black;
+    border-color: transparent !important;
+  }
+}
+ 
+button.ant-btn-link {
+  &:hover,
+  &:active,
+  &:focus {
+    border-color: transparent;
+  }
+}
+ 
+button.ant-btn-danger {
+  &:hover,
+  &:active,
+  &:focus {
+    color: @white;
+    border-color: transparent !important;
+  }
+}
+ 
+button.ant-btn-background-ghost {
+  color: @link-color;
+  border-color: @link-color;
+}
+ 
+.ant-tabs-nav {
+  .ant-tabs-tab-active {
+    color: @black !important;
+  }
+ 
+  .ant-tabs-tab {
+    &:hover {
+      color: @black !important;
+      font-weight: 500 !important;
+    }
+  }
+ 
+  .ant-tabs-ink-bar {
+    background-color: @primary-color !important;
+  }
+}
+ 
+.ant-pagination {
+  .ant-pagination-item-active {
+    border-color: @link-color;
+ 
+    a {
+      color: @link-color;
+    }
+  }
+}
+ 
+.ant-select-dropdown {
+  .ant-select-dropdown-menu-item {
+    &:hover {
+      color: @link-color;
+    }
+  }
+ 
+  .ant-select-dropdown-menu-item-selected {
+    i.ant-select-selected-icon {
+      color: @link-color !important;
+    }
+  }
+}
+ 
+li.ant-cascader-menu-item {
+  &:hover {
+    color: @link-color;
+  }
+}
+ 
+.ant-radio-group {
+  .ant-radio-button-wrapper-checked {
+    border-color: @link-color !important;
+    color: @link-color !important;
+    outline: none !important;
+    box-shadow: -1px 0 0 0 @link-color;
+ 
+    &:before {
+      background-color: @link-color !important;
+      opacity: 1 !important;
+    }
+  }
+ 
+  .ant-radio-button-wrapper-checked:not(.ant-radio-button-wrapper-disabled)::before {
+    background-color: @link-color !important;
+  }
+}
+ 
+.ant-menu {
+  .ant-menu-item-selected {
+    color: @black !important;
+    font-weight: 500 !important;
+  }
+ 
+  .ant-menu-item:not(.ant-menu-item-disabled) {
+    &:hover {
+      color: @black !important;
+      font-weight: 500 !important;
+    }
+  }
+}
+ 
+.ant-calendar-tbody {
+  .ant-calendar-selected-start-date,
+  .ant-calendar-selected-end-date {
+    .ant-calendar-date {
+      //background: @link-color !important;
+      color: @black !important;
+    }
+  }
+ 
+  .ant-calendar-in-range-cell {
+    &::before {
+      background-color: @primary-2 !important;
+    }
+  }
+}
+ 
+.ant-radio-button-wrapper-checked {
+  background: none !important;
+}
+ 
+.ant-radio-button-wrapper {
+  &:hover {
+    color: @link-color !important;
+  }
+}
+ 
+.ant-time-picker-panel-select {
+  li {
+    &:hover {
+      color: @link-color !important;
+      background-color: #fff !important;
+    }
+ 
+    &:focus {
+      color: @black !important;
+    }
+  }
+}
+ 
+.ant-steps {
+  .ant-steps-item-icon {
+    width: 24px;
+    height: 24px;
+    position: relative;
+    top: 3px;
+ 
+    .ant-steps-icon {
+      top: -5px;
+    }
+  }
+ 
+  .ant-steps-item-finish {
+    .ant-steps-item-icon {
+      border-color: #595959;
+ 
+      .ant-steps-icon {
+        color: #595959;
+      }
+    }
+ 
+    .ant-steps-item-content {
+      .ant-steps-item-title {
+        &::after {
+          background-color: #d9d9d9;
+        }
+      }
+    }
+  }
+ 
+  .ant-steps-item-process {
+    .ant-steps-item-icon {
+      border-color: @primary-color;
+      background-color: @primary-color;
+ 
+      .ant-steps-icon {
+        color: @black;
+      }
+    }
+  }
+ 
+  .ant-steps-item-wait {
+    .ant-steps-item-icon {
+      .ant-steps-icon {
+        color: #595959;
+      }
+    }
+  }
+}
+ 
+.ant-card {
+  .ant-card-actions {
+    li {
+      .anticon,
+      span {
+        &:hover {
+          color: @link-color;
+        }
+      }
+    }
+  }
+}
+ 
+// 去掉光晕
+.ant-btn-group {
+  .ant-btn {
+    &:after {
+      display: none !important;
+    }
+  }
+}

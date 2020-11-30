@@ -4,7 +4,10 @@ export function getScrollParent(node: Node) {
     return null;
   }
 
-  if ((node as HTMLElement).scrollHeight > (node as HTMLElement).clientHeight) {
+  if ((node as HTMLElement).scrollHeight > (node as HTMLElement).clientHeight + 1) {
+    // if (node.scrollHeight === node.parentNode?.scrollHeight) {
+    //   return getScrollParent(node.parentNode);
+    // }
     return node;
   }
   return getScrollParent(node.parentNode);

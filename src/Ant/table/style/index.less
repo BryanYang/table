@@ -2,6 +2,7 @@
 @import '../../style/mixins/index';
 @import './size';
 @import './bordered';
+@import './reset.less';
 
 @table-prefix-cls: ~'@{ant-prefix}-table';
 @dropdown-prefix-cls: ~'@{ant-prefix}-dropdown';
@@ -207,7 +208,6 @@
   &-fixed-left {
     left: 0;
     .@{table-prefix-cls}-body-inner {
-      margin-right: -15px;
       padding-right: 0;
     }
   }
@@ -331,7 +331,10 @@
     > tr {
       > th,
       > td {
-        border-bottom: @border-width-base @border-style-base @border-color-split;
+        background: @table-header-bg;
+      }
+      > td.scroll { 
+        border-top: @border-width-base @border-style-base @border-color-split !important;
       }
     }
   }
@@ -732,6 +735,8 @@
   }
 
   .@{table-prefix-cls}-container {
+    position: relative;
+    overflow: hidden;
     &::before,
     &::after {
       position: absolute;

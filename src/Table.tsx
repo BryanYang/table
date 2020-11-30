@@ -28,7 +28,7 @@
 import * as React from 'react';
 import classNames from 'classnames';
 import shallowEqual from 'shallowequal';
-// import addEventListener from 'rc-util/lib/Dom/addEventListener';
+import addEventListener from 'rc-util/lib/Dom/addEventListener';
 import warning from 'rc-util/lib/warning';
 import { Provider, create } from 'mini-store';
 import ResizeObserver from 'rc-resize-observer';
@@ -71,6 +71,7 @@ import ResizeContext from './context/ResizeContext';
 import ColGroup from './ColGroup';
 import { getExpandableProps, getDataAndAriaProps } from './utils/legacyUtil';
 import debounce from './utils/debounce';
+import { toArray } from './utils/valueUtil';
 import Panel from './Panel';
 import Footer, { FooterComponents } from './Footer';
 import { findAllChildrenKeys, renderExpandIcon } from './utils/expandUtil';
@@ -256,6 +257,7 @@ function Table<RecordType extends DefaultRecordType>(props: TableProps<RecordTyp
   const syncFixedTableRowHeight = React.useCallback(() => {
     const bodyTable = scrollBodyRef.current;
     const headTable = scrollHeaderRef.current;
+    if (!bodyTable) return;
     const headRows = headTable
       ? headTable.querySelectorAll('thead')
       : bodyTable.querySelectorAll('thead');
@@ -318,7 +320,7 @@ function Table<RecordType extends DefaultRecordType>(props: TableProps<RecordTyp
   }, [handleWindowResize])
 
   React.useEffect(() => {
-    debouncedWindowResize(); 
+    debouncedWindowResize();
   })
 
 
@@ -584,7 +586,7 @@ function Table<RecordType extends DefaultRecordType>(props: TableProps<RecordTyp
     currentTarget: HTMLElement;
     scrollLeft?: number;
   }) => {
-  
+
     const mergedScrollLeft = typeof scrollLeft === 'number' ? scrollLeft : currentTarget.scrollLeft;
     const compareTarget = currentTarget || EMPTY_SCROLL_TARGET;
     if (!getScrollTarget() || getScrollTarget() === compareTarget) {
@@ -597,7 +599,7 @@ function Table<RecordType extends DefaultRecordType>(props: TableProps<RecordTyp
         forceScroll(mergedScrollLeft, scrollHeaderRef.current);
         forceScroll(mergedScrollLeft, scrollBodyRef.current);
         forceScroll(mergedScrollLeft, stickyRef.current?.setScrollLeft);
-        
+
         lastScrollLeft = mergedScrollLeft;
 
         if (currentTarget) {
@@ -616,8 +618,8 @@ function Table<RecordType extends DefaultRecordType>(props: TableProps<RecordTyp
   };
 
   const isBodyScroll = () => {
-    const {width} = scrollBodyRef.current.getBoundingClientRect();
-    const {scrollWidth} = scrollBodyRef.current;
+    const { width } = scrollBodyRef.current.getBoundingClientRect();
+    const { scrollWidth } = scrollBodyRef.current;
     setIsHorizonScroll(scrollWidth > width);
   }
 
@@ -660,72 +662,158 @@ function Table<RecordType extends DefaultRecordType>(props: TableProps<RecordTyp
 
   const thead: HTMLElement | undefined = React.useMemo(() => {
     return scrollBodyRef?.current && scrollBodyRef.current.querySelector(`.${prefixCls}-thead`);
-  },[scrollBodyRef?.current, fixHeader]);
+  }, [scrollBodyRef?.current, fixHeader]);
 
   const [leftThead, setLeftThead] = React.useState<HTMLElement>(null);
   const [rightThead, setRightThead] = React.useState<HTMLElement>(null);
   let stickyHeader: HTMLElement | undefined;
-  let stickyHeaderHeight = 0;
-  let summaryEles: NodeListOf<HTMLElement>;
+  // let stickyHeaderHeight = 0;
+  // let summaryEles: NodeListOf<HTMLElement>;
 
 
   React.useEffect(() => {
     setLeftThead(leftTableRef?.current && leftTableRef.current.querySelector(`.${prefixCls}-thead`) as HTMLElement);
     setRightThead(rightTableRef?.current && rightTableRef.current.querySelector(`.${prefixCls}-thead`) as HTMLElement);
     stickyHeader = fullTableRef?.current && fullTableRef.current.querySelector(`.${prefixCls}-sticky-header`);
-    stickyHeaderHeight = stickyHeader ? stickyHeader.getBoundingClientRect().height : 0;
-    summaryEles = fullTableRef?.current && fullTableRef.current.querySelectorAll(`.${prefixCls}-summary`) as unknown as NodeListOf<HTMLElement>;
+    // stickyHeaderHeight = stickyHeader ? stickyHeader.getBoundingClientRect().height : 0;
+    // summaryEles = fullTableRef?.current && fullTableRef.current.querySelectorAll(`.${prefixCls}-summary`) as unknown as NodeListOf<HTMLElement>;
     // console.log(summaryEle);
   })
 
-  const firstScrollParentTop: number = React.useMemo(() => {
-    const p =  getScrollParent(tableContainerRef.current);
-    if (p) {
-      const { top } = p.getBoundingClientRect();
-      return top;
-    }
-    return 0;
+  const firstScrollParent = React.useMemo(() => {
+    const p = getScrollParent(tableContainerRef.current);
+    return p;
   }, [tableContainerRef.current]);
 
-  // vertical scroll
-  React.useEffect(() => {
-    if (isSticky) {
-      const scrollVertical = () => {
-        if (!tableContainerRef.current) return;
-        const { top: t, height, bottom } = tableContainerRef.current.getBoundingClientRect();
-        // const scrollTopp = document.documentElement.scrollTop;
-        // console.log(top + '_' +bottom + '_' + scrollTopp)
-        const btm = bottom - document.documentElement.clientHeight - (isHorizonScroll ? 15 : 0);
-        // console.log(btm)
-        const top = t - firstScrollParentTop;
-        if(-top > 0) {
-          const translate = stickyHeaderHeight - top > height - 15 ? (height - stickyHeaderHeight - 15) : -top;
-          if(thead) thead.style.transform = `translateY(${Math.round(translate)}px)`;
-          if(leftThead) leftThead.style.transform = `translateY(${Math.round(translate)}px)`;
-          if(rightThead) rightThead.style.transform = `translateY(${Math.round(translate)}px)`;
-          if (stickyHeader) {
-            stickyHeader.style.transform = `translateY(${Math.round(translate)}px`;
-          }
-        } else {
-          if(thead) thead.style.transform = `translateY(0px)`;
-          if(leftThead) leftThead.style.transform = `translateY(0px)`;
-          if(rightThead) rightThead.style.transform = `translateY(0px)`;
-          if(stickyHeader) stickyHeader.style.transform = `translateY(0px)`;
-        }
+  const stickySummary = React.useCallback(() => {
+    if (!scrollBodyRef.current || !fullTableRef?.current) return;
+    const { height } = scrollBodyRef.current.getBoundingClientRect();
+    const summaryEles = fullTableRef?.current && fullTableRef.current.querySelectorAll(`.${prefixCls}-summary`) as unknown as NodeListOf<HTMLElement>;
 
-        if (btm > 0) {
+    if (summaryEles) {
+      let summaryTop = scrollBodyRef.current.scrollHeight - height - scrollBodyRef.current.scrollTop;
+      // eslint-disable-next-line no-unused-expressions
+      isHorizonScroll && (summaryTop += (scrollbarSize - 1));
+      [].forEach.call(summaryEles, summaryEle => {
+        if (summaryEle.style) {
           // eslint-disable-next-line no-param-reassign
-          if (summaryEles) summaryEles.forEach(summaryEle => { summaryEle.style.transform = `translateY(${Math.round(-btm)}px)`});
-        // eslint-disable-next-line no-param-reassign
-        } else if (summaryEles) summaryEles.forEach(summaryEle => { summaryEle.style.transform = 'translateY(0px)'; });
-      }
-      window.addEventListener('scroll', scrollVertical, true);
-      return () => {
-        window.removeEventListener('scroll', scrollVertical)
+          summaryEle.style.transform = `translateY(${-summaryTop}px)`
+        }
+      })
+    }
+  }, [scrollBodyRef.current, fullTableRef?.current, isHorizonScroll])
+
+  React.useEffect(() => {
+    if (!isSticky) return;
+    if (firstScrollParent && tableContainerRef.current) {
+      const { top: ctop = 0 } = tableContainerRef.current.getBoundingClientRect();
+      const { top: ptop } = firstScrollParent.getBoundingClientRect();
+      const offsetParentTop = ctop - ptop;
+      setTimeout(() => {
+        firstScrollParent.onscroll = () => {
+          let { scrollTop } = firstScrollParent;
+          if (firstScrollParent === document.body) {
+            scrollTop = document.body.scrollTop || document.documentElement.scrollTop;
+          }
+          const top = scrollTop - offsetParentTop - 1;
+          let lock = false;
+          let lastIs0 = false;
+          if (top > 0) {
+            const translate = top;
+            if (!lock) {
+              requestAnimationFrame(() => {
+                lock = true;
+                lastIs0 = false;
+                if (thead) thead.style.transform = `translateY(${Math.round(translate)}px)`;
+                if (leftThead) leftThead.style.transform = `translateY(${Math.round(translate)}px)`;
+                if (rightThead) rightThead.style.transform = `translateY(${Math.round(translate)}px)`;
+                if (stickyHeader) {
+                  stickyHeader.style.transform = `translateY(${Math.round(translate)}px`;
+                }
+                lock = false;
+              })
+            }
+          } else if (!lastIs0) {
+            if (thead) thead.style.transform = `translateY(0px)`;
+            if (leftThead) leftThead.style.transform = `translateY(0px)`;
+            if (rightThead) rightThead.style.transform = `translateY(0px)`;
+            if (stickyHeader) stickyHeader.style.transform = `translateY(0px)`;
+            lastIs0 = true;
+          }
+        };
+      }, 500)
+
+      if (summary) {
+        scrollBodyRef.current.onscroll = stickySummary;
       }
     }
-    return undefined;
-  }, [isSticky, thead, leftThead, rightThead, summary])
+  }, [firstScrollParent, tableContainerRef.current, isSticky, summary, isHorizonScroll])
+
+
+  React.useEffect(() => {
+    if (summary) {
+      stickySummary();
+    }
+  });
+
+  // const vtop = React.useMemo(() => {
+  //   const p = getScrollParent(tableContainerRef.current);
+  //   // console.log(p);
+  //   const { top = 0 } = tableContainerRef.current?.getBoundingClientRect() || {};
+
+  //   if (p) {
+  //     window.p = p;
+  //     const { top: ptop } = p.getBoundingClientRect();
+  //     return top - ptop;
+  //   }
+  //   return top;
+  // }, [tableContainerRef.current]);
+
+  // vertical scroll
+  // React.useEffect(() => {
+  //   if (isSticky) {
+  //     const scrollVertical = () => {
+  //       if (!tableContainerRef.current) return;
+  //       if (!firstScrollParent) return;
+  //       // const { top: t, height, bottom } = tableContainerRef.current.getBoundingClientRect();
+  //       // const { top: firstScrollParentTop } = firstScrollParent?.getBoundingClientRect() || {};
+  //       // console.log(firstScrollParent.scrollTop);
+  //       // console.log(vtop);
+  //       // const scrollTopp = document.documentElement.scrollTop;
+  //       // console.log(top + '_' +bottom + '_' + scrollTopp)
+  //       // const btm = bottom - document.documentElement.clientHeight - (isHorizonScroll ? scrollbarSize : 0);
+  //       // console.log(btm)
+  //       // console.log('tpo'+ t)
+  //       const top = firstScrollParent.scrollTop - vtop -1;
+  //       if(top > 0) {
+  //         // const translate = stickyHeaderHeight - top > height - scrollbarSize ? (height - stickyHeaderHeight - scrollbarSize) : -top - 2;
+  //         const translate = top;
+  //         if(thead) thead.style.transform = `translateY(${Math.round(translate)}px)`;
+  //         if(leftThead) leftThead.style.transform = `translateY(${Math.round(translate)}px)`;
+  //         if(rightThead) rightThead.style.transform = `translateY(${Math.round(translate)}px)`;
+  //         if (stickyHeader) {
+  //           stickyHeader.style.transform = `translateY(${Math.round(translate)}px`;
+  //         }
+  //       } else {
+  //         if(thead) thead.style.transform = `translateY(0px)`;
+  //         if(leftThead) leftThead.style.transform = `translateY(0px)`;
+  //         if(rightThead) rightThead.style.transform = `translateY(0px)`;
+  //         if(stickyHeader) stickyHeader.style.transform = `translateY(0px)`;
+  //       }
+
+  //       // if (btm > 0) {
+  //       //   // eslint-disable-next-line no-param-reassign
+  //       //   if (summaryEles) summaryEles.forEach(summaryEle => { if(summaryEle.style) summaryEle.style.transform = `translateY(${Math.round(-btm)}px)`});
+  //       // // eslint-disable-next-line no-param-reassign
+  //       // } else if (summaryEles) summaryEles.forEach(summaryEle => { if(summaryEle.style) summaryEle.style.transform = 'translateY(0px)'; });
+  //     }
+  //     window.addEventListener('scroll', scrollVertical, true);
+  //     return () => {
+  //       window.removeEventListener('scroll', scrollVertical)
+  //     }
+  //   }
+  //   return undefined;
+  // }, [isSticky, thead, leftThead, rightThead, summary])
 
   // ====================== Render ======================
   const TableComponent = getComponent(['table'], 'table');
@@ -977,8 +1065,9 @@ function Table<RecordType extends DefaultRecordType>(props: TableProps<RecordTyp
       const bodyContent = (
         <div
           style={{
-            ...scrollXStyle,
             ...scrollYStyle,
+            overflowX: 'hidden',
+            marginRight: -scrollbarSize,
           }}
           onScroll={onScrollTop}
           ref={fixedColumnsBodyLeft}
@@ -996,7 +1085,7 @@ function Table<RecordType extends DefaultRecordType>(props: TableProps<RecordTyp
             {bodyTable}
             {footerTable}
           </TableComponent>
-          { hasData && isHorizonScroll &&  <div className="place-holder" style={{ height: 15 }}></div> }
+          { hasData && isHorizonScroll && <div className="place-holder" style={{ height: scrollbarSize }}></div>}
 
           {/* {isSticky && (
             <StickyScrollBar
@@ -1046,7 +1135,7 @@ function Table<RecordType extends DefaultRecordType>(props: TableProps<RecordTyp
             <div
               className={classNames(`${prefixCls}-body-outer`)}
               style={{
-                marginBottom: (hasData && isHorizonScroll) ? -15 : 0,
+                marginBottom: (hasData && isHorizonScroll) ? -scrollbarSize : 0,
                 paddingBottom: 0,
               }}
             >
@@ -1095,8 +1184,9 @@ function Table<RecordType extends DefaultRecordType>(props: TableProps<RecordTyp
             ...scrollXStyle,
             ...scrollYStyle,
             ...{
-              marginBottom: (hasData && isHorizonScroll) ? -15 : 0,
-            }
+              marginBottom: (hasData && isHorizonScroll) ? -scrollbarSize : 0,
+            },
+            overflowX: 'hidden',
           }}
           onScroll={onScrollTop}
           ref={fixedColumnsBodyRight}
@@ -1115,9 +1205,9 @@ function Table<RecordType extends DefaultRecordType>(props: TableProps<RecordTyp
             {footerTable}
           </TableComponent>
           {
-            hasData && isHorizonScroll && <div className="place-holder" style={{ height: 15 }}></div>
+            hasData && isHorizonScroll && <div className="place-holder" style={{ height: scrollbarSize }}></div>
           }
-          
+
           {/* {isSticky && (
             <StickyScrollBar
               ref={stickyRef}

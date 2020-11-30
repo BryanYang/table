@@ -2,7 +2,7 @@ import { Key, DataIndex } from '../interface';
 
 const INTERNAL_KEY_PREFIX = 'RC_TABLE_KEY';
 
-function toArray<T>(arr: T | T[]): T[] {
+export function toArray<T>(arr: T | T[]): T[] {
   if (arr === undefined || arr === null) {
     return [];
   }

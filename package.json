@@ -1,6 +1,6 @@
 {
   "name": "@mtfe/rms-table",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "table ui component for react, base rc-table 7.9.10",
   "engines": {
     "node": ">=8.x"
@@ -46,7 +46,6 @@
     "coverage": "father test --coverage"
   },
   "peerDependencies": {
-    "react": "^16.0.0",
     "react-dom": "^16.0.0"
   },
   "dependencies": {
@@ -59,6 +58,7 @@
     "omit.js": "^2.0.2",
     "raf": "^3.4.1",
     "rc-checkbox": "^2.3.1",
+    "rc-motion": "^2.4.1",
     "rc-resize-observer": "^0.2.0",
     "rc-select": "^11.5.1",
     "rc-tree": "^4.0.0-beta.2",
@@ -86,10 +86,9 @@
     "rc-dropdown": "^3.2.0",
     "rc-menu": "^8.10.1",
     "rc-tooltip": "^4.0.3",
-    "react": "^16.0.0",
     "react-dnd": "^2.5.4",
     "react-dnd-html5-backend": "^2.5.4",
-    "react-dom": "^16.0.0",
+    "react-dom": "16.13.1",
     "react-resizable": "^1.7.5",
     "react-test-renderer": "^16.0.0",
     "react-virtualized": "^9.12.0",

@@ -58,8 +58,8 @@ const data: RecordType[] = [
 const Demo = () => (
   <div style={{ width: 800 }}>
     <h2>Fixed columns</h2>
-    <div style={{ height: 600, overflow: "scroll" }}>
-      <h1>占位</h1>
+    <div id="contai" style={{ height: 600, overflow: "scroll" }}>
+      <div style={{height: 100}}>占位</div>
       <Table
         columns={columns}
         expandedRowRender={({ b, c }) => b || c}
