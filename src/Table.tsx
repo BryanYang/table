@@ -29,10 +29,11 @@
 import * as React from 'react';
 import classNames from 'classnames';
 import shallowEqual from 'shallowequal';
+import ResizeObserver from 'resize-observer-polyfill';
 import addEventListener from 'rc-util/lib/Dom/addEventListener';
 import warning from 'rc-util/lib/warning';
 import { Provider, create } from 'mini-store';
-import ResizeObserver from 'rc-resize-observer';
+import ResizeObserverCom from 'rc-resize-observer';
 import getScrollBarSize from 'rc-util/lib/getScrollBarSize';
 import ColumnGroup from './sugar/ColumnGroup';
 import Column from './sugar/Column';
@@ -754,8 +755,8 @@ function Table<RecordType extends DefaultRecordType>(props: TableProps<RecordTyp
   // 监听所有父元素的resize. 变化后。重新寻找第一个滚动的父元素
   React.useEffect(() => {
     // eslint-disable-next-line 
-    if (tableContainerRef.current && window['ResizeObserver']) {
-      const myObserver = new (window as any).ResizeObserver(debounce(() => {
+    if (tableContainerRef.current) {
+      const myObserver = new ResizeObserver(debounce(() => {
         const first = getScrollParent(tableContainerRef.current);
         setFirstScrollParent(first);
       }, 500))
@@ -1351,7 +1352,7 @@ function Table<RecordType extends DefaultRecordType>(props: TableProps<RecordTyp
   );
 
   if (horizonScroll) {
-    fullTable = <ResizeObserver onResize={onFullTableResize}>{fullTable}</ResizeObserver>;
+    fullTable = <ResizeObserverCom onResize={onFullTableResize}>{fullTable}</ResizeObserverCom>;
   }
 
   const TableContextValue = React.useMemo(
