@@ -49,6 +49,7 @@
     "react-dom": "^16.0.0"
   },
   "dependencies": {
+    "@ant-design/css-animation": "^1.7.3",
     "@ant-design/icons": "4.0.0",
     "@babel/runtime": "^7.10.1",
     "classnames": "^2.2.5",

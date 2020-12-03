@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 /**
  * Feature:
  *  - fixed not need to set width
@@ -522,7 +523,7 @@ function Table<RecordType extends DefaultRecordType>(props: TableProps<RecordTyp
       scrollYStyle = { overflowY: 'hidden' };
     }
     scrollTableStyle = {
-      width: scroll.x === true ? 'auto' : scroll.x,
+      width: (!scroll || scroll?.x === true) ? 'auto' : scroll.x,
       minWidth: '100%',
     };
   }
@@ -586,14 +587,13 @@ function Table<RecordType extends DefaultRecordType>(props: TableProps<RecordTyp
     currentTarget: HTMLElement;
     scrollLeft?: number;
   }) => {
-
     const mergedScrollLeft = typeof scrollLeft === 'number' ? scrollLeft : currentTarget.scrollLeft;
     const compareTarget = currentTarget || EMPTY_SCROLL_TARGET;
     if (!getScrollTarget() || getScrollTarget() === compareTarget) {
       setScrollTarget(compareTarget);
       handleBodyScrollTop(currentTarget);
 
-      if (mergedScrollLeft !== lastScrollLeft && scroll.x) {
+      if ((lastScrollLeft === 0 || mergedScrollLeft !== lastScrollLeft) && scroll?.x) {
         setScrollTarget(compareTarget);
 
         forceScroll(mergedScrollLeft, scrollHeaderRef.current);
@@ -624,7 +624,6 @@ function Table<RecordType extends DefaultRecordType>(props: TableProps<RecordTyp
   }
 
   const onFullTableResize = ({ width }) => {
-    // console.log(width);
     triggerOnScroll();
     // setComponentWidth(fullTableRef.current ? fullTableRef.current.offsetWidth : width);
     setComponentWidth(scroll?.x ? Number(scroll.x) : width);
@@ -680,11 +679,6 @@ function Table<RecordType extends DefaultRecordType>(props: TableProps<RecordTyp
     // console.log(summaryEle);
   })
 
-  const firstScrollParent = React.useMemo(() => {
-    const p = getScrollParent(tableContainerRef.current);
-    return p;
-  }, [tableContainerRef.current]);
-
   const stickySummary = React.useCallback(() => {
     if (!scrollBodyRef.current || !fullTableRef?.current) return;
     const { height } = scrollBodyRef.current.getBoundingClientRect();
@@ -701,16 +695,21 @@ function Table<RecordType extends DefaultRecordType>(props: TableProps<RecordTyp
         }
       })
     }
-  }, [scrollBodyRef.current, fullTableRef?.current, isHorizonScroll])
+  }, [scrollBodyRef.current, fullTableRef?.current, isHorizonScroll]);
+
+  const [firstScrollParent, setFirstScrollParent] = React.useState(null);
 
   React.useEffect(() => {
     if (!isSticky) return;
-    if (firstScrollParent && tableContainerRef.current) {
-      const { top: ctop = 0 } = tableContainerRef.current.getBoundingClientRect();
-      const { top: ptop } = firstScrollParent.getBoundingClientRect();
-      const offsetParentTop = ctop - ptop;
+    let clear: () => void;
+    if (tableContainerRef.current && firstScrollParent) {
       setTimeout(() => {
-        firstScrollParent.onscroll = () => {
+        firstScrollParent.scrollTop = 0;
+        const { top: ctop = 0, height } = tableContainerRef.current.getBoundingClientRect();
+        if (height === 0) return;
+        const { top: ptop } = firstScrollParent.getBoundingClientRect();
+        const offsetParentTop = ctop - ptop;
+        const { remove } = addEventListener(firstScrollParent === document.body ? document : firstScrollParent, 'scroll', () => {
           let { scrollTop } = firstScrollParent;
           if (firstScrollParent === document.body) {
             scrollTop = document.body.scrollTop || document.documentElement.scrollTop;
@@ -740,15 +739,33 @@ function Table<RecordType extends DefaultRecordType>(props: TableProps<RecordTyp
             if (stickyHeader) stickyHeader.style.transform = `translateY(0px)`;
             lastIs0 = true;
           }
-        };
+        });
+        clear = remove;
       }, 500)
 
       if (summary) {
         scrollBodyRef.current.onscroll = stickySummary;
       }
     }
-  }, [firstScrollParent, tableContainerRef.current, isSticky, summary, isHorizonScroll])
+    // eslint-disable-next-line consistent-return
+    return clear;
+  }, [tableContainerRef.current, isSticky, summary, isHorizonScroll, firstScrollParent])
 
+  // 监听所有父元素的resize. 变化后。重新寻找第一个滚动的父元素
+  React.useEffect(() => {
+    // eslint-disable-next-line 
+    if (tableContainerRef.current && window['ResizeObserver']) {
+      const myObserver = new (window as any).ResizeObserver(debounce(() => {
+        const first = getScrollParent(tableContainerRef.current);
+        setFirstScrollParent(first);
+      }, 500))
+      let p = tableContainerRef.current.parentElement;
+      while(p) {
+        myObserver.observe(p);
+        p = p.parentElement;
+      }
+    }
+  }, [tableContainerRef.current])
 
   React.useEffect(() => {
     if (summary) {
@@ -827,7 +844,7 @@ function Table<RecordType extends DefaultRecordType>(props: TableProps<RecordTyp
     // When scroll.x is max-content, no need to fix table layout
     // it's width should stretch out to fit content
     if (fixColumn) {
-      return scroll.x === 'max-content' ? 'auto' : 'fixed';
+      return scroll?.x === 'max-content' ? 'auto' : 'fixed';
     }
     if (fixHeader || flattenColumns.some(({ ellipsis }) => ellipsis)) {
       return 'fixed';

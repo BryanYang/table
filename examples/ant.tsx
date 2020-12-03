@@ -12,7 +12,23 @@ interface RecordType {
 const columns = [
   { title: 'title1', dataIndex: 'a', key: 'a', width: 100, fixed: 'left' as any },
   { id: '123', title: 'title2', dataIndex: 'b', key: 'b' },
-  { title: 'title3', dataIndex: 'c', key: 'c',},
+  { title: 'title3', dataIndex: 'c', key: 'c',
+  render: (value, row, index) => {
+    const obj = {
+      children: value,
+      props: {},
+    };
+    if (index === 2) {
+      obj.props.rowSpan = 2;
+    }
+    // These two are merged into above cell
+    if (index === 3) {
+      obj.props.rowSpan = 0;
+    }
+    
+    return obj;
+  }  
+},
   { title: 'title4', dataIndex: 'c', key: 'c'},
   { title: 'title5', dataIndex: 'c', key: 'c' },
   { title: 'title6', dataIndex: 'c', key: 'c', },
@@ -20,20 +36,31 @@ const columns = [
     title: 'Operations',
     dataIndex: '',
     width: 150,
+    fixed: 'right',
     key: 'd',
-    // fixed: 'right',
-    render(_: any, record: RecordType) {
-      return (
-        <a
-          onClick={e => {
-            e.preventDefault();
-            console.log('Operate on:', record);
-          }}
-          href="#"
-        >
-          Operations
-        </a>
-      );
+    render(_: any, record: RecordType, index) {
+      const value = (<a
+        onClick={e => {
+          e.preventDefault();
+          console.log('Operate on:', record);
+        }}
+        href="#"
+      >
+        Operations
+      </a>)
+      const obj = {
+        children: value,
+        props: {},
+      };
+      if (index === 2) {
+        obj.props.rowSpan = 2;
+      }
+      // These two are merged into above cell
+      if (index === 3) {
+        obj.props.rowSpan = 0;
+      }
+      return obj; 
+     
     },
   },
 
@@ -74,7 +101,8 @@ const Demo = () => (
       columns={columns} 
       sticky 
       style={{ width: null }} 
-      size="small" 
+      size="small"
+      bordered
       scroll={{x: 1000, y: 300}}
       // summary={() => (
       //   <Table.Summary.Row style={{ background: '#fafafa' }}>

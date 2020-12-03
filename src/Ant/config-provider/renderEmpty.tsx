@@ -10,7 +10,7 @@ const renderEmpty = (componentName?: string): React.ReactNode => (
       switch (componentName) {
         case 'Table':
         case 'List':
-          return <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} />;
+          return <Empty image={Empty.PRESENTED_IMAGE_SIMPLE}>暂无数据</Empty>;
 
         case 'Select':
         case 'TreeSelect':

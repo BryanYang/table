@@ -199,6 +199,10 @@
     transition: box-shadow .3s ease;
     z-index: auto;
     box-shadow: none;
+    
+    table {
+      border: none !important;
+    }
 
     .@{table-prefix-cls}-expanded-row {
       opacity: 0;
@@ -210,6 +214,10 @@
     .@{table-prefix-cls}-body-inner {
       padding-right: 0;
     }
+
+    .@{table-prefix-cls}-container table > thead > tr:first-child th:last-child {
+      border-top-right-radius: 0 !important;
+    }
   }
 
   &-fixed-right {
@@ -218,6 +226,10 @@
       // margin-bottom: -15px;
       padding-bottom: 0;
     }
+    .@{table-prefix-cls}-container table > thead > tr:first-child th:first-child {
+      border-top-left-radius: 0 !important;
+    }
+
   }
 
   &-ping-left  &-fixed-left{

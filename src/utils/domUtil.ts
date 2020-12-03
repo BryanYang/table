@@ -1,14 +1,23 @@
 // 获取第一个可以滚动的父元素
-export function getScrollParent(node: Node) {
+export function getScrollParent(node: Element) {
   if (node == null) {
     return null;
   }
 
-  if ((node as HTMLElement).scrollHeight > (node as HTMLElement).clientHeight + 1) {
-    // if (node.scrollHeight === node.parentNode?.scrollHeight) {
-    //   return getScrollParent(node.parentNode);
-    // }
+  if(node === document.body) {
     return node;
   }
-  return getScrollParent(node.parentNode);
+
+  if (node.scrollTop > 0) {
+    return node;
+  }
+  
+  node.scrollTop += 1;
+  const top = node.scrollTop;
+  top && (node.scrollTop = 0);
+  if(top > 0) {
+    return node;
+  } 
+  return getScrollParent(node.parentElement);
+
 }
