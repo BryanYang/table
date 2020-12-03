@@ -93,6 +93,13 @@ const data = [
 const Demo = () => (
   <div>
     <h2>simple table</h2>
+    <div style={{ display: 'flex', flexWrap: 'wrap' }}>
+      <div style={{ background: 'red', marginRight: 20, width: 200, height: 100 }}></div>
+      <div style={{ background: 'red', marginRight: 20, width: 200, height: 100 }}></div>
+
+      <div style={{ background: 'red', marginRight: 20, width: 200, height: 100 }}></div>
+
+    </div>
     <br />
     <br />
     <br />

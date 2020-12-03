@@ -699,17 +699,14 @@ function Table<RecordType extends DefaultRecordType>(props: TableProps<RecordTyp
   }, [scrollBodyRef.current, fullTableRef?.current, isHorizonScroll]);
 
   const [firstScrollParent, setFirstScrollParent] = React.useState(null);
+  const [firstoffsetParentTop, setFirstOffsetParentTop] = React.useState(0);
 
   React.useEffect(() => {
     if (!isSticky) return;
-    let clear: () => void;
+    let clear: Function = () => null;
     if (tableContainerRef.current && firstScrollParent) {
       setTimeout(() => {
-        firstScrollParent.scrollTop = 0;
-        const { top: ctop = 0, height } = tableContainerRef.current.getBoundingClientRect();
-        if (height === 0) return;
-        const { top: ptop } = firstScrollParent.getBoundingClientRect();
-        const offsetParentTop = ctop - ptop;
+        const offsetParentTop = firstoffsetParentTop;
         const { remove } = addEventListener(firstScrollParent === document.body ? document : firstScrollParent, 'scroll', () => {
           let { scrollTop } = firstScrollParent;
           if (firstScrollParent === document.body) {
@@ -741,7 +738,9 @@ function Table<RecordType extends DefaultRecordType>(props: TableProps<RecordTyp
             lastIs0 = true;
           }
         });
-        clear = remove;
+        clear = () => {
+          remove();
+        };
       }, 500)
 
       if (summary) {
@@ -749,8 +748,10 @@ function Table<RecordType extends DefaultRecordType>(props: TableProps<RecordTyp
       }
     }
     // eslint-disable-next-line consistent-return
-    return clear;
-  }, [tableContainerRef.current, isSticky, summary, isHorizonScroll, firstScrollParent])
+    return () => {
+      clear();
+    };
+  }, [tableContainerRef.current, isSticky, summary, isHorizonScroll, firstScrollParent, firstoffsetParentTop])
 
   // 监听所有父元素的resize. 变化后。重新寻找第一个滚动的父元素
   React.useEffect(() => {
@@ -758,7 +759,16 @@ function Table<RecordType extends DefaultRecordType>(props: TableProps<RecordTyp
     if (tableContainerRef.current) {
       const myObserver = new ResizeObserver(debounce(() => {
         const first = getScrollParent(tableContainerRef.current);
-        setFirstScrollParent(first);
+        if (first && tableContainerRef.current) {
+          first.scrollTop = 0;
+          const { top: ctop = 0, height } = tableContainerRef.current.getBoundingClientRect();
+          if (height === 0) return;
+          const { top: ptop } = first.getBoundingClientRect();
+          const offsetParentTop = ctop - ptop;
+          setFirstOffsetParentTop(offsetParentTop);
+          setFirstScrollParent(first);
+        }
+        
       }, 500))
       let p = tableContainerRef.current.parentElement;
       while(p) {
