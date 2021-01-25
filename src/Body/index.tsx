@@ -79,7 +79,7 @@ function Body<RecordType>({
         );
       });
     } else {
-      rows = (
+      rows = fixed ? null :(
         <ExpandedRow
           expanded
           className={`${prefixCls}-placeholder`}
@@ -92,7 +92,7 @@ function Body<RecordType>({
           cellComponent={tdComponent}
           colSpan={flattenColumns.length}
         >
-          <div style={{ visibility: fixed ? 'hidden' : 'inherit' }}>{emptyNode}</div>
+          <div>{emptyNode}</div>
         </ExpandedRow>
       );
     }

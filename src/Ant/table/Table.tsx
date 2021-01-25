@@ -148,7 +148,7 @@ function Table<RecordType extends object = any>(props: TableProps<RecordType>) {
   );
   const mergedSize = customizeSize || size;
   const tableLocale = { ...contextLocale.Table, ...locale } as TableLocale;
-  const rawData: RecordType[] = dataSource || EMPTY_LIST;
+  const rawData: RecordType[] = Array.isArray(dataSource) ? (dataSource || EMPTY_LIST) : EMPTY_LIST;
 
   const { getPrefixCls } = React.useContext(ConfigContext);
   const prefixCls = getPrefixCls('table', customizePrefixCls);

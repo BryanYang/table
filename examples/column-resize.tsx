@@ -34,7 +34,7 @@ interface DemoState {
 class Demo extends React.Component<{}, DemoState> {
   state: DemoState = {
     columns: [
-      { title: 'title1', dataIndex: 'a', key: 'a', width: 100 },
+      { title: 'title1', dataIndex: 'a', key: 'a', width: 100, fixed: 'left' },
       { title: 'title2', dataIndex: 'b', key: 'b', width: 100 },
       { title: 'title3', dataIndex: 'c', key: 'c', width: 200 },
       {
@@ -84,7 +84,7 @@ class Demo extends React.Component<{}, DemoState> {
     return (
       <div>
         <h2>Integrate with react-resizable</h2>
-        <Table components={this.components} columns={columns} data={this.data} />
+        <Table scroll={{ x: 1000 }} components={this.components} columns={columns} data={this.data} />
       </div>
     );
   }

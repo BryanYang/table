@@ -257,6 +257,9 @@ function Table<RecordType extends DefaultRecordType>(props: TableProps<RecordTyp
   }), []);
 
   const syncFixedTableRowHeight = React.useCallback(() => {
+    if (!fixColumn) {
+      return;
+    }
     const bodyTable = scrollBodyRef.current;
     const headTable = scrollHeaderRef.current;
     if (!bodyTable) return;
@@ -554,6 +557,7 @@ function Table<RecordType extends DefaultRecordType>(props: TableProps<RecordTyp
   const handleBodyScrollTop = target => {
     // Fix https://github.com/ant-design/ant-design/issues/9033
     // const { headTable, bodyTable, fixedColumnsBodyLeft, fixedColumnsBodyRight } = this;
+    if (!target) return;
     if (target.scrollTop !== lastScrollTop && scroll.y && target !== scrollHeaderRef.current) {
       const { scrollTop: scrollTopTarget } = target;
       if (fixedColumnsBodyLeft.current && target !== fixedColumnsBodyLeft.current) {
@@ -619,9 +623,11 @@ function Table<RecordType extends DefaultRecordType>(props: TableProps<RecordTyp
   };
 
   const isBodyScroll = () => {
-    const { width } = scrollBodyRef.current.getBoundingClientRect();
-    const { scrollWidth } = scrollBodyRef.current;
-    setIsHorizonScroll(scrollWidth > width);
+    if (scrollBodyRef.current?.getBoundingClientRect) {
+      const { width } = scrollBodyRef.current?.getBoundingClientRect();
+      const { scrollWidth } = scrollBodyRef.current;
+      setIsHorizonScroll(scrollWidth > width);
+    }
   }
 
   const onFullTableResize = ({ width }) => {
@@ -661,7 +667,7 @@ function Table<RecordType extends DefaultRecordType>(props: TableProps<RecordTyp
 
 
   const thead: HTMLElement | undefined = React.useMemo(() => {
-    return scrollBodyRef?.current && scrollBodyRef.current.querySelector(`.${prefixCls}-thead`);
+    return scrollBodyRef.current?.querySelector?.(`.${prefixCls}-thead`);
   }, [scrollBodyRef?.current, fixHeader]);
 
   const [leftThead, setLeftThead] = React.useState<HTMLElement>(null);
@@ -768,10 +774,10 @@ function Table<RecordType extends DefaultRecordType>(props: TableProps<RecordTyp
           setFirstOffsetParentTop(offsetParentTop);
           setFirstScrollParent(first);
         }
-        
+
       }, 500))
       let p = tableContainerRef.current.parentElement;
-      while(p) {
+      while (p) {
         myObserver.observe(p);
         p = p.parentElement;
       }

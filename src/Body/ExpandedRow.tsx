@@ -55,7 +55,6 @@ function ExpandedRow<RecordType>({
       );
     }
 
-    // console.log(style);
     return (
       <Component
         className={className}

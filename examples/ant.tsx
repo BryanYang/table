@@ -107,16 +107,16 @@ const Demo = () => (
     <Table 
       columns={columns} 
       sticky 
-      style={{ width: null }} 
+      // style={{ width: null }} 
       size="small"
       bordered
       scroll={{x: 1000, y: 300}}
-      // summary={() => (
-      //   <Table.Summary.Row style={{ background: '#fafafa' }}>
-      //     <Table.Summary.Cell index={0}></Table.Summary.Cell>
-      //     <Table.Summary.Cell index={1} colSpan={6}>This is a summary content</Table.Summary.Cell>
-      //   </Table.Summary.Row>
-      // )}
+      summary={() => (
+        <Table.Summary.Row style={{ background: '#fafafa' }}>
+          <Table.Summary.Cell index={0}></Table.Summary.Cell>
+          <Table.Summary.Cell index={1} colSpan={6}>This is a summary content</Table.Summary.Cell>
+        </Table.Summary.Row>
+      )}
       summary={(currentData, Tr, Td) => (
         <>
           {/* <Tr rowKey="1">
