@@ -57,7 +57,7 @@ const fixedData = [
 ];
 
 const columns: ColumnType<{ a: string; b: string; c: string }>[] = [
-  { title: 'title1', dataIndex: 'a', key: 'a', width: 100 },
+  { title: 'title1', dataIndex: 'a', key: 'a', width: 100, fixed: 'left' },
   { title: 'title2', dataIndex: 'b', key: 'b', width: 100, align: 'right' },
   { title: 'title3', dataIndex: 'c', key: 'c', width: 200 },
   {
@@ -116,10 +116,8 @@ const Demo = () => (
       tableLayout="auto"
       sticky
       scroll={{
-        x: 10000,
-      }}
-      style={{
-        marginBottom: 100,
+        x: 3000,
+        y: 900,
       }}
     />
 

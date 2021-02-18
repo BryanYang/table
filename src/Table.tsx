@@ -73,7 +73,6 @@ import ResizeContext from './context/ResizeContext';
 import ColGroup from './ColGroup';
 import { getExpandableProps, getDataAndAriaProps } from './utils/legacyUtil';
 import debounce from './utils/debounce';
-import { toArray } from './utils/valueUtil';
 import Panel from './Panel';
 import Footer, { FooterComponents } from './Footer';
 import { findAllChildrenKeys, renderExpandIcon } from './utils/expandUtil';
@@ -93,6 +92,7 @@ interface MemoTableContentProps {
   children: React.ReactNode;
   pingLeft: boolean;
   pingRight: boolean;
+  scrollBarSize: number;
   props: any;
 }
 
@@ -100,9 +100,13 @@ const doNothing = () => null;
 
 const MemoTableContent = React.memo<MemoTableContentProps>(
   ({ children }) => children as React.ReactElement,
-
+  // 返回 false 的话刷新， true 则不刷新
   (prev, next) => {
     if (!shallowEqual(prev.props, next.props)) {
+      return false;
+    }
+
+    if (prev.scrollBarSize !== next.scrollBarSize) {
       return false;
     }
 
@@ -970,14 +974,14 @@ function Table<RecordType extends DefaultRecordType>(props: TableProps<RecordTyp
             {footerTable}
           </TableComponent>
 
-          {/* {isSticky && (
+          {isSticky && (
             <StickyScrollBar
               ref={stickyRef}
               offsetScroll={offsetScroll}
               scrollBodyRef={scrollBodyRef}
               onScroll={onScroll}
             />
-          )} */}
+          )}
         </div>
       );
     }
@@ -1088,6 +1092,7 @@ function Table<RecordType extends DefaultRecordType>(props: TableProps<RecordTyp
 
 
   const renderLeftFixedTable = () => {
+    // console.log(scrollbarSize)
     // console.log(BodyContextValueOnlyFixedLeftColumns);
     // console.log(scrollTableStyle);
     let groupTableNodeLeft: React.ReactNode;
@@ -1120,15 +1125,6 @@ function Table<RecordType extends DefaultRecordType>(props: TableProps<RecordTyp
             {footerTable}
           </TableComponent>
           { hasData && isHorizonScroll && <div className="place-holder" style={{ height: scrollbarSize }}></div>}
-
-          {/* {isSticky && (
-            <StickyScrollBar
-              ref={stickyRef}
-              offsetScroll={offsetScroll}
-              scrollBodyRef={null}
-              onScroll={onScroll}
-            />
-          )} */}
         </div>
       );
 
@@ -1140,7 +1136,6 @@ function Table<RecordType extends DefaultRecordType>(props: TableProps<RecordTyp
           }}
           className={classNames(`${prefixCls}-content`)}
           ref={leftTableRef}
-        // onScroll={onScroll}
         >
           <div className={classNames(`${prefixCls}-fixed-left`)}>
             {/* Header Table */}
@@ -1241,15 +1236,6 @@ function Table<RecordType extends DefaultRecordType>(props: TableProps<RecordTyp
           {
             hasData && isHorizonScroll && <div className="place-holder" style={{ height: scrollbarSize }}></div>
           }
-
-          {/* {isSticky && (
-            <StickyScrollBar
-              ref={stickyRef}
-              offsetScroll={offsetScroll}
-              scrollBodyRef={null}
-              onScroll={onScroll}
-            />
-          )} */}
         </div>
       );
 
@@ -1351,6 +1337,7 @@ function Table<RecordType extends DefaultRecordType>(props: TableProps<RecordTyp
         <MemoTableContent
           pingLeft={pingedLeft}
           pingRight={pingedRight}
+          scrollBarSize={scrollbarSize}
           props={{ ...props, mergedExpandedKeys }}
         >
           {title && <Panel className={`${prefixCls}-title`}>{title(mergedData)}</Panel>}

@@ -80,7 +80,7 @@ const Demo = () => {
   const [fixTitle3, fixTitle3Props] = useCheckbox(false);
   const [ellipsis, ellipsisProps] = useCheckbox(false);
   const [percentage, percentageProps] = useCheckbox(false);
-  const [sticky, stickyProps] = useCheckbox(false);
+  const [sticky, stickyProps] = useCheckbox(true);
   const [empty, emptyProps] = useCheckbox(false);
   const columns = useColumn(fixLeft, fixTitle3, fixRight, ellipsis, percentage);
 
@@ -141,7 +141,7 @@ const Demo = () => {
 
         <Table<RecordType>
           columns={columns}
-          scroll={{ x: 1650, y: fixHeader ? 300 : null }}
+          scroll={{ x: 1650, y: fixHeader ? 500 : null }}
           sticky={sticky}
           data={mergedData}
           style={{ width: autoWidth ? null : 800 }}

@@ -16,7 +16,6 @@ export function getScrollParent(node: Element) {
 
   node.scrollTop += 1;
   const top = node.scrollTop;
-  top && (node.scrollTop = 0);
   if (top > 0) {
     return node;
   }
