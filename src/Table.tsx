@@ -79,6 +79,7 @@ import { findAllChildrenKeys, renderExpandIcon } from './utils/expandUtil';
 // import { getCellFixedInfo } from './utils/fixUtil';
 import StickyScrollBar from './stickyScrollBar';
 import useSticky from './hooks/useSticky';
+import { useChromeVersion } from './hooks/useAgent';
 
 // Used for conditions cache
 const EMPTY_DATA = [];
@@ -501,7 +502,7 @@ function Table<RecordType extends DefaultRecordType>(props: TableProps<RecordTyp
   const fixRightColumns: ColumnType<RecordType>[] = columns.filter(({ fixed }) => fixed === 'right');
   const fixLeftFlattenColumns = flattenColumns.filter(({ fixed }) => fixed === 'left');
   const fixRightFlattenColumns = flattenColumns.filter(({ fixed }) => fixed === 'right');
-
+  const ChromeVersion = useChromeVersion();
 
   // const colsLeftKeys = getColumnsKey(fixLeftColumns);
   // const pureColLeftWidths = colsLeftKeys.map(columnKey => colsWidths.get(columnKey));
@@ -534,6 +535,13 @@ function Table<RecordType extends DefaultRecordType>(props: TableProps<RecordTyp
       width: (!scroll || scroll?.x === true) ? 'auto' : scroll.x,
       minWidth: '100%',
     };
+    if (scrollTableStyle.width === 'max-content') {
+      // https://caniuse.com/?search=max-content
+      // polyfill for max-content at chrome before version 45.
+      if (ChromeVersion < 45) {
+        scrollTableStyle.width = '-webkit-max-content';
+      }
+    }
   }
 
   const onColumnResize = React.useCallback((columnKey: React.Key, width: number) => {
