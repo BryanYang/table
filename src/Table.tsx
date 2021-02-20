@@ -778,11 +778,10 @@ function Table<RecordType extends DefaultRecordType>(props: TableProps<RecordTyp
       const myObserver = new ResizeObserver(debounce(() => {
         const first = getScrollParent(tableContainerRef.current);
         if (first && tableContainerRef.current) {
-          first.scrollTop = 0;
           const { top: ctop = 0, height } = tableContainerRef.current.getBoundingClientRect();
           if (height === 0) return;
           const { top: ptop } = first.getBoundingClientRect();
-          const offsetParentTop = ctop - ptop;
+          const offsetParentTop = ctop - ptop + first.scrollTop;
           setFirstOffsetParentTop(offsetParentTop);
           setFirstScrollParent(first);
         }
@@ -982,14 +981,14 @@ function Table<RecordType extends DefaultRecordType>(props: TableProps<RecordTyp
             {footerTable}
           </TableComponent>
 
-          {isSticky && (
+          {/* {isSticky && (
             <StickyScrollBar
               ref={stickyRef}
               offsetScroll={offsetScroll}
               scrollBodyRef={scrollBodyRef}
               onScroll={onScroll}
             />
-          )}
+          )} */}
         </div>
       );
     }
@@ -1354,6 +1353,17 @@ function Table<RecordType extends DefaultRecordType>(props: TableProps<RecordTyp
               {renderMainTable()}
               {fixLeftColumns.length > 0 && renderLeftFixedTable()}
               {fixRightColumns.length > 0 && renderRightFixedTable()}
+              {
+                fixHeader && isSticky && (
+                  <StickyScrollBar
+                    ref={stickyRef}
+                    offsetScroll={offsetScroll}
+                    scrollBodyRef={scrollBodyRef}
+                    onScroll={onScroll}
+                    scrollbarSize={scrollbarSize}
+                  />
+                )
+              }
             </>
           </div>
           {footer && <Panel className={`${prefixCls}-footer`}>{footer(mergedData)}</Panel>}
