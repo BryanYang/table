@@ -95,6 +95,9 @@ interface MemoTableContentProps {
   pingRight: boolean;
   scrollBarSize: number;
   props: any;
+  // 修复固定列底部超出滚动条的bug. 
+  hasData: boolean;
+  isHorizonScroll: boolean;
 }
 
 const doNothing = () => null;
@@ -107,9 +110,14 @@ const MemoTableContent = React.memo<MemoTableContentProps>(
       return false;
     }
 
+    if (prev.isHorizonScroll !== next.isHorizonScroll || prev.hasData !== next.hasData) {
+      return false;
+    }
+
     if (prev.scrollBarSize !== next.scrollBarSize) {
       return false;
     }
+
 
     // No additional render when pinged status change.
     // This is not a bug.
@@ -977,6 +985,7 @@ function Table<RecordType extends DefaultRecordType>(props: TableProps<RecordTyp
             }}
           >
             {bodyColGroup}
+            {showHeader !== false && <Header {...headerProps} hidden {...columnContext} />}
             {bodyTable}
             {footerTable}
           </TableComponent>
@@ -1009,7 +1018,6 @@ function Table<RecordType extends DefaultRecordType>(props: TableProps<RecordTyp
             onScroll={onScroll}
           />
         )}
-
         {/* Body Table */}
         {bodyContent}
       </>
@@ -1345,6 +1353,8 @@ function Table<RecordType extends DefaultRecordType>(props: TableProps<RecordTyp
           pingLeft={pingedLeft}
           pingRight={pingedRight}
           scrollBarSize={scrollbarSize}
+          isHorizonScroll={isHorizonScroll}
+          hasData={hasData}
           props={{ ...props, mergedExpandedKeys }}
         >
           {title && <Panel className={`${prefixCls}-title`}>{title(mergedData)}</Panel>}

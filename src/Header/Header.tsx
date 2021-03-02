@@ -1,5 +1,6 @@
 import * as React from 'react';
 import { connect } from 'mini-store'
+import classNames from 'classnames';
 import {
   ColumnsType,
   CellType,
@@ -91,6 +92,7 @@ export interface HeaderProps<RecordType> {
   onHeaderRow: GetComponentProps<ColumnType<RecordType>[]>;
   fixed?: string | number;
   heightFun?: (rows: CellType<DefaultRecordType>[][]) => string | null | number;
+  hidden?: boolean;
 }
 
 function Header<RecordType>({
@@ -99,6 +101,7 @@ function Header<RecordType>({
   flattenColumns,
   onHeaderRow,
   heightFun,
+  hidden,
 }: HeaderProps<RecordType>): React.ReactElement {
   const { prefixCls, getComponent, scrollTop } = React.useContext(TableContext);
   const rows: CellType<RecordType>[][] = React.useMemo(() => parseHeaderRows(columns), [columns]);
@@ -114,7 +117,7 @@ function Header<RecordType>({
 
   // console.log(scrollTop);
   return (
-    <WrapperComponent className={`${prefixCls}-thead`} >
+    <WrapperComponent className={classNames(`${prefixCls}-thead`, {'thead-hidden': hidden })} >
       {rows.map((row, rowIndex) => {
         const rowNode = (
           <HeaderRow
@@ -138,7 +141,8 @@ function Header<RecordType>({
 
 function getRowHeight(state: TableStoreState, props: HeaderProps<DefaultRecordType>, rows: CellType<DefaultRecordType>[][]) {
   const { fixedColumnsHeadRowsHeight } = state;
-  const { columns, fixed } = props;
+  const { columns, fixed, hidden } = props;
+  if (hidden) return 0;
   const headerHeight = fixedColumnsHeadRowsHeight[0];
 
   if (!fixed) {

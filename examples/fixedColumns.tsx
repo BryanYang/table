@@ -56,7 +56,7 @@ const data: RecordType[] = [
 ];
 
 const Demo = () => (
-  <div style={{ width: 800 }}>
+  <div >
     <h2>Fixed columns</h2>
     <div id="contai" style={{ height: 600, overflow: "scroll" }}>
       <div style={{height: 100}}>占位</div>
