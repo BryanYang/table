@@ -801,9 +801,11 @@ function Table<RecordType extends DefaultRecordType>(props: TableProps<RecordTyp
         }
 
         
-        if (footRef.current) {
+        if (footRef && footRef.current) {
+          // @ts-ignore
           footRef.current.style.transform = 'translateY(0px)';
           requestAnimationFrame(() => {
+            // @ts-ignore
             const { top: ftop = 0, height: footHeight } = footRef!.current!.getBoundingClientRect();
             const { height } = first.getBoundingClientRect();
             setFootOffsetParentTop(ftop - height + footHeight);
