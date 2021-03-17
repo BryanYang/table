@@ -717,17 +717,20 @@ function Table<RecordType extends DefaultRecordType>(props: TableProps<RecordTyp
 
   const stickySummary = React.useCallback(() => {
     if (footRef.current  && firstScrollParent) {
+     
       let { scrollTop } = firstScrollParent;
       if (firstScrollParent === document.body) {
         scrollTop = document.body.scrollTop || document.documentElement.scrollTop;
       }
       let summaryTop = scrollTop - footOffsetParentTop;
       if (summaryTop > 0) summaryTop = 0;
-      [].forEach.call(summaryEles, summaryEle => {
-        if (summaryEle.style) {
-          // eslint-disable-next-line no-param-reassign
-          summaryEle.style.transform = `translateY(${summaryTop}px)`
-        }
+      requestAnimationFrame(() => {
+        [].forEach.call(summaryEles, summaryEle => {
+          if (summaryEle.style) {
+            // eslint-disable-next-line no-param-reassign
+            summaryEle.style.transform = `translateY(${summaryTop}px)`
+          }
+        })
       })
     }
   }, [footRef.current, firstScrollParent, summaryEles, footOffsetParentTop]);
@@ -804,12 +807,12 @@ function Table<RecordType extends DefaultRecordType>(props: TableProps<RecordTyp
         if (footRef && footRef.current) {
           // @ts-ignore
           footRef.current.style.transform = 'translateY(0px)';
-          requestAnimationFrame(() => {
+          setTimeout(() => {
             // @ts-ignore
             const { top: ftop = 0, height: footHeight } = footRef!.current!.getBoundingClientRect();
-            const { height } = first.getBoundingClientRect();
-            setFootOffsetParentTop(ftop - height + footHeight);
-          })
+            const { top: ptop, height } = first.getBoundingClientRect();
+            setFootOffsetParentTop(ftop - ptop - height + footHeight);
+          }, 100)
         }
 
       }, 500))
