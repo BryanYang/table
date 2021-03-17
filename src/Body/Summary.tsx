@@ -11,7 +11,7 @@ const Td = (props: { children: React.ReactChild, style?: React.CSSProperties }) 
   // if (fixed) {
   //   console.log(columns);
   // }
-  return <td style={props.style}>{props.children}</td>;
+  return <td {...props}>{props.children}</td>;
 }
 
 

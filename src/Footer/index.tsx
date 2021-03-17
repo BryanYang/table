@@ -7,12 +7,12 @@ export interface FooterProps<RecordType> {
   children: React.ReactNode;
 }
 
-function Footer<RecordType>({ children }: FooterProps<RecordType>) {
+function Footer<RecordType>({ children }: FooterProps<RecordType>, tref) {
   const { prefixCls } = React.useContext(TableContext);
-  return <tfoot className={`${prefixCls}-summary`}>{children}</tfoot>;
+  return <tfoot ref={tref} className={`${prefixCls}-summary`}>{children}</tfoot>;
 }
 
-export default Footer;
+export default React.forwardRef(Footer);
 
 export const FooterComponents = {
   Cell,

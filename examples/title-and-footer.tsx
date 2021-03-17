@@ -56,7 +56,7 @@ function useColumns(fixColumns: boolean): ColumnType<RecordType>[] {
 }
 
 const Demo = () => {
-  const [fixColumns, fixColumnsProps] = useCheckbox(false);
+  const [fixColumns, fixColumnsProps] = useCheckbox(true);
 
   const columns = useColumns(fixColumns);
 

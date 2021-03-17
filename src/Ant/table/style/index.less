@@ -20,6 +20,8 @@
   .clearfix;
 }
 
+
+
 .@{table-prefix-cls} {
   .reset-component;
   position: relative;
@@ -35,6 +37,16 @@
     border-radius: @table-border-radius-base @table-border-radius-base 0 0;
     border-collapse: separate;
     border-spacing: 0;
+  }
+  
+  .thead-hidden {
+    th {
+      height: 0px;
+      overflow: hidden;
+      padding: 0px 8px !important;
+      line-height: 0px;
+      border: none;
+    }
   }
 
   // ============================= Cell =============================

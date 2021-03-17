@@ -491,6 +491,8 @@ function Table<RecordType extends DefaultRecordType>(props: TableProps<RecordTyp
   const rightTableRef = React.useRef<HTMLDivElement>();
   const fixedColumnsBodyLeft = React.useRef<HTMLDivElement>();
   const fixedColumnsBodyRight = React.useRef<HTMLDivElement>();
+  const footRef = React.useRef();
+
   const [pingedLeft, setPingedLeft] = React.useState(false);
   const [pingedRight, setPingedRight] = React.useState(false);
   // 当前是否有水平滚动条
@@ -511,6 +513,7 @@ function Table<RecordType extends DefaultRecordType>(props: TableProps<RecordTyp
   const fixLeftFlattenColumns = flattenColumns.filter(({ fixed }) => fixed === 'left');
   const fixRightFlattenColumns = flattenColumns.filter(({ fixed }) => fixed === 'right');
   const ChromeVersion = useChromeVersion();
+
 
   // const colsLeftKeys = getColumnsKey(fixLeftColumns);
   // const pureColLeftWidths = colsLeftKeys.map(columnKey => colsWidths.get(columnKey));
@@ -690,42 +693,46 @@ function Table<RecordType extends DefaultRecordType>(props: TableProps<RecordTyp
     return scrollBodyRef.current?.querySelector?.(`.${prefixCls}-thead`);
   }, [scrollBodyRef?.current, fixHeader]);
 
+  const summaryEles: NodeListOf<Element> | undefined = React.useMemo(() => {
+    return fullTableRef?.current && fullTableRef.current.querySelectorAll(`.${prefixCls}-summary`) as unknown as NodeListOf<HTMLElement>;
+
+  }, [fullTableRef?.current]);
+
   const [leftThead, setLeftThead] = React.useState<HTMLElement>(null);
   const [rightThead, setRightThead] = React.useState<HTMLElement>(null);
   let stickyHeader: HTMLElement | undefined;
   // let stickyHeaderHeight = 0;
   // let summaryEles: NodeListOf<HTMLElement>;
-
+  const [firstScrollParent, setFirstScrollParent] = React.useState(null);
+  const [firstoffsetParentTop, setFirstOffsetParentTop] = React.useState(0);
+  const [footOffsetParentTop, setFootOffsetParentTop] = React.useState(0);
 
   React.useEffect(() => {
     setLeftThead(leftTableRef?.current && leftTableRef.current.querySelector(`.${prefixCls}-thead`) as HTMLElement);
     setRightThead(rightTableRef?.current && rightTableRef.current.querySelector(`.${prefixCls}-thead`) as HTMLElement);
     stickyHeader = fullTableRef?.current && fullTableRef.current.querySelector(`.${prefixCls}-sticky-header`);
     // stickyHeaderHeight = stickyHeader ? stickyHeader.getBoundingClientRect().height : 0;
-    // summaryEles = fullTableRef?.current && fullTableRef.current.querySelectorAll(`.${prefixCls}-summary`) as unknown as NodeListOf<HTMLElement>;
     // console.log(summaryEle);
   })
 
   const stickySummary = React.useCallback(() => {
-    if (!scrollBodyRef.current || !fullTableRef?.current) return;
-    const { height } = scrollBodyRef.current.getBoundingClientRect();
-    const summaryEles = fullTableRef?.current && fullTableRef.current.querySelectorAll(`.${prefixCls}-summary`) as unknown as NodeListOf<HTMLElement>;
-
-    if (summaryEles) {
-      let summaryTop = scrollBodyRef.current.scrollHeight - height - scrollBodyRef.current.scrollTop;
-      // eslint-disable-next-line no-unused-expressions
-      isHorizonScroll && (summaryTop += (scrollbarSize - 1));
+    if (footRef.current  && firstScrollParent) {
+      let { scrollTop } = firstScrollParent;
+      if (firstScrollParent === document.body) {
+        scrollTop = document.body.scrollTop || document.documentElement.scrollTop;
+      }
+      let summaryTop = scrollTop - footOffsetParentTop;
+      if (summaryTop > 0) summaryTop = 0;
       [].forEach.call(summaryEles, summaryEle => {
         if (summaryEle.style) {
           // eslint-disable-next-line no-param-reassign
-          summaryEle.style.transform = `translateY(${-summaryTop}px)`
+          summaryEle.style.transform = `translateY(${summaryTop}px)`
         }
       })
     }
-  }, [scrollBodyRef.current, fullTableRef?.current, isHorizonScroll]);
+  }, [footRef.current, firstScrollParent, summaryEles, footOffsetParentTop]);
 
-  const [firstScrollParent, setFirstScrollParent] = React.useState(null);
-  const [firstoffsetParentTop, setFirstOffsetParentTop] = React.useState(0);
+
 
   React.useEffect(() => {
     if (!isSticky) return;
@@ -733,6 +740,7 @@ function Table<RecordType extends DefaultRecordType>(props: TableProps<RecordTyp
     if (tableContainerRef.current && firstScrollParent) {
       setTimeout(() => {
         const offsetParentTop = firstoffsetParentTop;
+        stickySummary();
         const { remove } = addEventListener(firstScrollParent === document.body ? document : firstScrollParent, 'scroll', () => {
           let { scrollTop } = firstScrollParent;
           if (firstScrollParent === document.body) {
@@ -763,21 +771,19 @@ function Table<RecordType extends DefaultRecordType>(props: TableProps<RecordTyp
             if (stickyHeader) stickyHeader.style.transform = `translateY(0px)`;
             lastIs0 = true;
           }
+          stickySummary();
         });
         clear = () => {
           remove();
         };
       }, 500)
-
-      if (summary) {
-        scrollBodyRef.current.onscroll = stickySummary;
-      }
     }
+  
     // eslint-disable-next-line consistent-return
     return () => {
       clear();
     };
-  }, [tableContainerRef.current, isSticky, summary, isHorizonScroll, firstScrollParent, firstoffsetParentTop])
+  }, [tableContainerRef.current, isSticky, summary, isHorizonScroll, firstScrollParent, firstoffsetParentTop, stickySummary])
 
   // 监听所有父元素的resize. 变化后。重新寻找第一个滚动的父元素
   React.useEffect(() => {
@@ -794,6 +800,16 @@ function Table<RecordType extends DefaultRecordType>(props: TableProps<RecordTyp
           setFirstScrollParent(first);
         }
 
+        
+        if (footRef.current) {
+          footRef.current.style.transform = 'translateY(0px)';
+          requestAnimationFrame(() => {
+            const { top: ftop = 0, height: footHeight } = footRef!.current!.getBoundingClientRect();
+            const { height } = first.getBoundingClientRect();
+            setFootOffsetParentTop(ftop - height + footHeight);
+          })
+        }
+
       }, 500))
       let p = tableContainerRef.current.parentElement;
       while (p) {
@@ -801,72 +817,8 @@ function Table<RecordType extends DefaultRecordType>(props: TableProps<RecordTyp
         p = p.parentElement;
       }
     }
-  }, [tableContainerRef.current])
+  }, [tableContainerRef.current, footRef.current])
 
-  React.useEffect(() => {
-    if (summary) {
-      stickySummary();
-    }
-  });
-
-  // const vtop = React.useMemo(() => {
-  //   const p = getScrollParent(tableContainerRef.current);
-  //   // console.log(p);
-  //   const { top = 0 } = tableContainerRef.current?.getBoundingClientRect() || {};
-
-  //   if (p) {
-  //     window.p = p;
-  //     const { top: ptop } = p.getBoundingClientRect();
-  //     return top - ptop;
-  //   }
-  //   return top;
-  // }, [tableContainerRef.current]);
-
-  // vertical scroll
-  // React.useEffect(() => {
-  //   if (isSticky) {
-  //     const scrollVertical = () => {
-  //       if (!tableContainerRef.current) return;
-  //       if (!firstScrollParent) return;
-  //       // const { top: t, height, bottom } = tableContainerRef.current.getBoundingClientRect();
-  //       // const { top: firstScrollParentTop } = firstScrollParent?.getBoundingClientRect() || {};
-  //       // console.log(firstScrollParent.scrollTop);
-  //       // console.log(vtop);
-  //       // const scrollTopp = document.documentElement.scrollTop;
-  //       // console.log(top + '_' +bottom + '_' + scrollTopp)
-  //       // const btm = bottom - document.documentElement.clientHeight - (isHorizonScroll ? scrollbarSize : 0);
-  //       // console.log(btm)
-  //       // console.log('tpo'+ t)
-  //       const top = firstScrollParent.scrollTop - vtop -1;
-  //       if(top > 0) {
-  //         // const translate = stickyHeaderHeight - top > height - scrollbarSize ? (height - stickyHeaderHeight - scrollbarSize) : -top - 2;
-  //         const translate = top;
-  //         if(thead) thead.style.transform = `translateY(${Math.round(translate)}px)`;
-  //         if(leftThead) leftThead.style.transform = `translateY(${Math.round(translate)}px)`;
-  //         if(rightThead) rightThead.style.transform = `translateY(${Math.round(translate)}px)`;
-  //         if (stickyHeader) {
-  //           stickyHeader.style.transform = `translateY(${Math.round(translate)}px`;
-  //         }
-  //       } else {
-  //         if(thead) thead.style.transform = `translateY(0px)`;
-  //         if(leftThead) leftThead.style.transform = `translateY(0px)`;
-  //         if(rightThead) rightThead.style.transform = `translateY(0px)`;
-  //         if(stickyHeader) stickyHeader.style.transform = `translateY(0px)`;
-  //       }
-
-  //       // if (btm > 0) {
-  //       //   // eslint-disable-next-line no-param-reassign
-  //       //   if (summaryEles) summaryEles.forEach(summaryEle => { if(summaryEle.style) summaryEle.style.transform = `translateY(${Math.round(-btm)}px)`});
-  //       // // eslint-disable-next-line no-param-reassign
-  //       // } else if (summaryEles) summaryEles.forEach(summaryEle => { if(summaryEle.style) summaryEle.style.transform = 'translateY(0px)'; });
-  //     }
-  //     window.addEventListener('scroll', scrollVertical, true);
-  //     return () => {
-  //       window.removeEventListener('scroll', scrollVertical)
-  //     }
-  //   }
-  //   return undefined;
-  // }, [isSticky, thead, leftThead, rightThead, summary])
 
   // ====================== Render ======================
   const TableComponent = getComponent(['table'], 'table');
@@ -932,7 +884,7 @@ function Table<RecordType extends DefaultRecordType>(props: TableProps<RecordTyp
     <ColGroup colWidths={flattenColumns.map(({ width }) => width)} columns={flattenColumns} />
   );
 
-  const footerTable = summary && <Footer>{summary(mergedData, Tr, Td)}</Footer>;
+  const footerTable = summary && <Footer ref={footRef}>{summary(mergedData, Tr, Td)}</Footer>;
   const customizeScrollBody = getComponent(['body']) as CustomizeScrollBody<RecordType>;
 
   if (
@@ -987,7 +939,7 @@ function Table<RecordType extends DefaultRecordType>(props: TableProps<RecordTyp
             {bodyColGroup}
             {showHeader !== false && <Header {...headerProps} hidden {...columnContext} />}
             {bodyTable}
-            {footerTable}
+            {summary && <Footer ref={footRef}>{summary(mergedData, Tr, Td)}</Footer>}
           </TableComponent>
 
           {/* {isSticky && (
@@ -1037,7 +989,8 @@ function Table<RecordType extends DefaultRecordType>(props: TableProps<RecordTyp
           {bodyColGroup}
           {showHeader !== false && <Header {...headerProps} {...columnContext} />}
           {bodyTable}
-          {footerTable}
+          {/* {footerTable} */}
+          {summary && <Footer ref={footRef}>{summary(mergedData, Tr, Td)}</Footer>}
         </TableComponent>
       </div>
     );
