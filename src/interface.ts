@@ -99,6 +99,7 @@ export interface ColumnType<RecordType> extends ColumnSharedType<RecordType> {
   shouldCellUpdate?: (record: RecordType, prevRecord: RecordType) => boolean;
   rowSpan?: number;
   width?: number | string;
+  minWidth?: number;
   onCell?: GetComponentProps<RecordType>;
   /** @deprecated Please use `onCell` instead */
   onCellClick?: (record: RecordType, e: React.MouseEvent<HTMLElement>) => void;
@@ -132,12 +133,21 @@ type Component<P> =
 
 export type CustomizeComponent = Component<any>;
 
+export type ScrollDirection = 'forward' | 'backward';
+
 export type CustomizeScrollBody<RecordType> = (
   data: RecordType[],
   info: {
     scrollbarSize: number;
     ref: React.Ref<{ scrollLeft: number }>;
-    onScroll: (info: { currentTarget?: HTMLElement; scrollLeft?: number }) => void;
+    onScroll: (props: {
+      horizontalScrollDirection: ScrollDirection;
+      scrollLeft: number;
+      scrollTop: number;
+      scrollUpdateWasRequested: boolean;
+      verticalScrollDirection: ScrollDirection;
+    }) => void;
+    fixed?: 'left' | 'right';
   },
 ) => React.ReactNode;
 

@@ -43,7 +43,7 @@ function ExpandedRow<RecordType>({
       contentNode = (
         <div
           style={{
-            width: componentWidth - (fixHeader ? scrollbarSize : 0),
+            width: componentWidth ? (componentWidth - (fixHeader ? scrollbarSize : 0)) : undefined,
             // position: 'sticky',
             // left: 0,
             overflow: 'hidden',

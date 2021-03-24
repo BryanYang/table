@@ -111,6 +111,7 @@ export interface ColumnType<RecordType> extends RcColumnType<RecordType> {
 
   // Responsive
   responsive?: Breakpoint[];
+  minWidth?: number;
 }
 
 export interface ColumnGroupType<RecordType> extends Omit<ColumnType<RecordType>, 'dataIndex'> {

@@ -1,9 +1,15 @@
 {
   "compilerOptions": {
       "module": "commonjs",
-      "noImplicitAny": true,
+      "noImplicitAny": false,
       "removeComments": true,
       "preserveConstEnums": true,
-      "skipLibCheck": true
+      "skipLibCheck": true,
+      "allowJs": false,
+      "jsx": "react",
+      "downlevelIteration": true,
+      "target": "ES5",
+      "strict": false,
   },
+  "exclude": ["node_module", "jest.config.js"],
 }
