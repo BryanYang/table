@@ -59,7 +59,6 @@ function Body<RecordType>({
     if (data.length) {
       rows = data.map((record, index) => {
         const key = getRowKey(record, index);
-
         return (
           <BodyRow
             key={key}
