@@ -28,7 +28,7 @@ export interface BodyRowProps<RecordType> {
   getRowKey: GetRowKey<RecordType>;
   childrenColumnName: string;
   ancestorKeys?: Key[];
-  store: TableStore;
+  store?: TableStore;
   hovered?: boolean;
   onHover?: RowHoverEventHandler;
 }
@@ -77,13 +77,15 @@ function BodyRow<RecordType extends { children?: RecordType[] }>(props: BodyRowP
   const expanded = expandedKeys && expandedKeys.has(props.recordKey);
 
   const setExpandedRowHeight = React.useCallback(() => {
-    let { expandedRowsHeight } = store.getState();
-    const { height } = ref.current.getBoundingClientRect();
-    expandedRowsHeight = {
-      ...expandedRowsHeight,
-      [`${rowKey}-extra-row`]: height,
-    };
-    store.setState({ expandedRowsHeight });
+    if (store) {
+      let { expandedRowsHeight } = store.getState();
+      const { height } = ref.current.getBoundingClientRect();
+      expandedRowsHeight = {
+        ...expandedRowsHeight,
+        [`${rowKey}-extra-row`]: height,
+      };
+      store.setState({ expandedRowsHeight });
+    }
   }, [])
 
   React.useEffect(() => {
