@@ -1,6 +1,7 @@
 {
   "compilerOptions": {
-      "module": "commonjs",
+      "module": "ES6",
+      "moduleResolution": "node",
       "noImplicitAny": false,
       "removeComments": true,
       "preserveConstEnums": true,
@@ -8,7 +9,8 @@
       "allowJs": false,
       "jsx": "react",
       "downlevelIteration": true,
-      "strict": false,
+      "strict": false
+
   },
-  "exclude": ["node_module", "jest.config.js"],
+  "exclude": ["node_module", "jest.config.js"]
 }
