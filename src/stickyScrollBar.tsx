@@ -27,9 +27,11 @@ const StickyScrollBar: React.ForwardRefRenderFunction<unknown, StickyScrollBarPr
   const [frameState, setFrameState] = useFrameState<{
     scrollLeft: number;
     isHiddenScrollBar: boolean;
+    translateY: number;
   }>({
     scrollLeft: 0,
     isHiddenScrollBar: false,
+    translateY: 0,
   });
   const refState = React.useRef<{
     delta: number;
@@ -39,6 +41,8 @@ const StickyScrollBar: React.ForwardRefRenderFunction<unknown, StickyScrollBarPr
     x: 0,
   });
   const [isActive, setActive] = React.useState(false);
+  const [firstSrcollParent, setFirstScrollParent] = React.useState<HTMLDivElement>();
+  // const [translateY, setTranslateY] = React.useState(0);
 
   const onMouseUp: React.MouseEventHandler<HTMLDivElement> = () => {
     setActive(false);
@@ -62,7 +66,6 @@ const StickyScrollBar: React.ForwardRefRenderFunction<unknown, StickyScrollBarPr
       }
       return;
     }
-    // console.log(refState);
     let left: number =
       refState.current.x + event.pageX - refState.current.x - refState.current.delta;
 
@@ -93,11 +96,13 @@ const StickyScrollBar: React.ForwardRefRenderFunction<unknown, StickyScrollBarPr
       setFrameState(state => ({
         ...state,
         isHiddenScrollBar: true,
+        translateY: 0,
       }));
     } else {
       setFrameState(state => ({
         ...state,
         isHiddenScrollBar: false,
+        translateY: currentClientOffset - tableBottomOffset - scrollbarSize * 2,
       }));
     }
   };
@@ -126,8 +131,8 @@ const StickyScrollBar: React.ForwardRefRenderFunction<unknown, StickyScrollBarPr
   }, [scrollBarWidth, isActive]);
 
   React.useEffect(() => {
-    const parent = getScrollParent(scrollBodyRef.current);
-    if (parent) {
+    const parent = firstSrcollParent;
+    if (firstSrcollParent) {
       const onScrollListener = addEventListener(parent, 'scroll', onContainerScroll, false);
       const onResizeListener = addEventListener(parent, 'resize', onContainerScroll, false);
   
@@ -137,7 +142,16 @@ const StickyScrollBar: React.ForwardRefRenderFunction<unknown, StickyScrollBarPr
       };
     }
     return () => {};
-  }, []);
+  }, [firstSrcollParent]);
+
+  React.useEffect(() => {
+    setFirstScrollParent(getScrollParent(scrollBodyRef.current));
+    setTimeout(() => {
+      setFirstScrollParent(getScrollParent(scrollBodyRef.current));
+    }, 2000)
+  }, [scrollBodyRef.current]);
+
+
 
   React.useEffect(() => {
     if (!frameState.isHiddenScrollBar) {
@@ -160,6 +174,7 @@ const StickyScrollBar: React.ForwardRefRenderFunction<unknown, StickyScrollBarPr
         height: scrollbarSize,
         width: bodyWidth,
         bottom: offsetScroll,
+        transform: `translateY(${frameState.translateY}px)`
       }}
       className={`${prefixCls}-sticky-scroll`}
     >

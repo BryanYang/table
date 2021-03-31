@@ -954,15 +954,6 @@ function Table<RecordType extends DefaultRecordType>(props: TableProps<RecordTyp
             {bodyTable}
             {summary && <Footer ref={footRef}>{summary(mergedData, Tr, Td)}</Footer>}
           </TableComponent>
-
-          {/* {isSticky && (
-            <StickyScrollBar
-              ref={stickyRef}
-              offsetScroll={offsetScroll}
-              scrollBodyRef={scrollBodyRef}
-              onScroll={onScroll}
-            />
-          )} */}
         </div>
       );
     }
@@ -1360,7 +1351,7 @@ function Table<RecordType extends DefaultRecordType>(props: TableProps<RecordTyp
               {fixLeftColumns.length > 0 && hasData && renderLeftFixedTable()}
               {fixRightColumns.length > 0 && hasData && renderRightFixedTable()}
               {
-                fixHeader && isSticky && (
+                isSticky && (
                   <StickyScrollBar
                     ref={stickyRef}
                     offsetScroll={offsetScroll}
