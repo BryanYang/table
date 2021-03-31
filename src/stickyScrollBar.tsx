@@ -9,7 +9,7 @@ import { getScrollParent } from './utils/domUtil';
 
 interface StickyScrollBarProps {
   scrollBodyRef: React.RefObject<HTMLDivElement>;
-  onScroll: (params: { scrollLeft?: number }) => void;
+  onScroll: (params: { currentTarget?: HTMLElement; scrollLeft?: number }) => void;
   offsetScroll: number;
   scrollbarSize: number;
 }
@@ -78,6 +78,7 @@ const StickyScrollBar: React.ForwardRefRenderFunction<unknown, StickyScrollBarPr
     }
 
     onScroll({
+      currentTarget: scrollBodyRef.current,
       scrollLeft: (left / bodyWidth) * (bodyScrollWidth + 2),
     });
 
