@@ -1,6 +1,6 @@
 {
   "name": "@mtfe/rms-table",
-  "version": "0.0.6-9",
+  "version": "0.0.6-10",
   "description": "table ui component for react, base rc-table 7.9.10",
   "engines": {
     "node": ">=8.x"
