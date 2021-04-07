@@ -78,22 +78,23 @@ function Body<RecordType>({
         );
       });
     } else {
-      rows = fixed ? null :(
-        <ExpandedRow
-          expanded
-          className={`${prefixCls}-placeholder`}
-          prefixCls={prefixCls}
-          fixHeader={fixHeader}
-          fixColumn={horizonScroll}
-          horizonScroll={horizonScroll}
-          component={trComponent}
-          componentWidth={componentWidth}
-          cellComponent={tdComponent}
-          colSpan={flattenColumns.length}
-        >
-          <div>{emptyNode}</div>
-        </ExpandedRow>
-      );
+      // rows = fixed ? null :(
+      //   <ExpandedRow
+      //     expanded
+      //     className={`${prefixCls}-placeholder`}
+      //     prefixCls={prefixCls}
+      //     fixHeader={fixHeader}
+      //     fixColumn={horizonScroll}
+      //     horizonScroll={horizonScroll}
+      //     component={trComponent}
+      //     componentWidth={componentWidth}
+      //     cellComponent={tdComponent}
+      //     colSpan={flattenColumns.length}
+      //   >
+      //     <div>{emptyNode}</div>
+      //   </ExpandedRow>
+      // );
+      rows = null;
     }
 
     const columnsKey = getColumnsKey(flattenColumns);

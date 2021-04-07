@@ -121,6 +121,7 @@ const FixedHeader = React.forwardRef<HTMLDivElement, FixedHeaderProps<unknown>>(
         style={{
           overflow:  fixed ? 'visible' : 'hidden',
           ...(isSticky ? { top: offsetHeader } : {}),
+          paddingBottom: 0,
         }}
         ref={setScrollRef}
         className={classNames(`${prefixCls}-header`, {

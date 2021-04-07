@@ -535,6 +535,7 @@ function Table<RecordType extends DefaultRecordType>(props: TableProps<RecordTyp
   }
 
   if (horizonScroll) {
+    // @ts-ignore
     scrollXStyle = { overflowX: 'auto' };
     // When no vertical scrollbar, should hide it
     // https://github.com/ant-design/ant-design/pull/20705
@@ -1347,9 +1348,14 @@ function Table<RecordType extends DefaultRecordType>(props: TableProps<RecordTyp
           {title && <Panel className={`${prefixCls}-title`}>{title(mergedData)}</Panel>}
           <div ref={tableContainerRef} className={`${prefixCls}-container`}>
             <>
-              {renderMainTable()}
-              {fixLeftColumns.length > 0 && hasData && renderLeftFixedTable()}
-              {fixRightColumns.length > 0 && hasData && renderRightFixedTable()}
+              <div className={`${prefixCls}-scroll`}>
+                {renderMainTable()}
+                {!hasData && <div className={`${prefixCls}-placeholder`}>
+                  {emptyNode}
+                </div>}
+              </div>
+              {fixLeftColumns.length > 0 && renderLeftFixedTable()}
+              {fixRightColumns.length > 0 && renderRightFixedTable()}
               {
                 isSticky && (
                   <StickyScrollBar
