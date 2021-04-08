@@ -1,6 +1,6 @@
 import * as React from 'react';
 import classNames from 'classnames';
-import isEqual from 'lodash/isEqual';
+import isEqual from 'lodash.isequal';
 import FilterFilled from '@ant-design/icons/FilterFilled';
 import Button from '../../../button';
 import Menu from '../../../menu';

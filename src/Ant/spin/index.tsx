@@ -1,7 +1,7 @@
 import * as React from 'react';
 import classNames from 'classnames';
 import omit from 'omit.js';
-import debounce from 'lodash/debounce';
+import debounce from '../../utils/debounce';
 import { ConfigConsumer, ConfigConsumerProps } from '../config-provider';
 import { tuple } from '../_util/type';
 import { isValidElement, cloneElement } from '../_util/reactNode'
