@@ -275,7 +275,7 @@ function Table<RecordType extends DefaultRecordType>(props: TableProps<RecordTyp
     }
     const bodyTable = scrollBodyRef.current;
     const headTable = scrollHeaderRef.current;
-    if (!bodyTable) return;
+    if (!bodyTable || !bodyTable.querySelectorAll) return;
     const headRows = headTable
       ? headTable.querySelectorAll('thead')
       : bodyTable.querySelectorAll('thead');
@@ -330,6 +330,9 @@ function Table<RecordType extends DefaultRecordType>(props: TableProps<RecordTyp
 
   const handleWindowResize = React.useCallback(() => {
     syncFixedTableRowHeight();
+    // resize的时候 scrollBarSize 可能会变，窗口缩小。，他会增加。窗口放大，他会减小，貌似浏览器为了维持进度条视觉上不随着放大缩小变化而进行的设定
+    const size = getScrollBarSize(true);
+    setScrollbarSize(size);
     // console.log(scrollBodyRef.current.scrollWidth);
   }, [])
 
@@ -340,7 +343,6 @@ function Table<RecordType extends DefaultRecordType>(props: TableProps<RecordTyp
   React.useEffect(() => {
     debouncedWindowResize();
   })
-
 
   const getComponent = React.useCallback<GetComponent>(
     (path, defaultComponent) =>
@@ -671,15 +673,15 @@ function Table<RecordType extends DefaultRecordType>(props: TableProps<RecordTyp
   }, [horizonScroll]);
 
   // eslint-disable-next-line consistent-return
-  // React.useEffect(() => {
-  //   if (fixColumn) {
-  //     handleWindowResize();
-  //     const resizeEvent = addEventListener(window, 'resize', debouncedWindowResize);
-  //     return () => {
-  //       resizeEvent.remove();
-  //     }
-  //   }
-  // }, [])
+  React.useEffect(() => {
+    if (fixColumn) {
+      handleWindowResize();
+      const resizeEvent = addEventListener(window, 'resize', debouncedWindowResize);
+      return () => {
+        resizeEvent.remove();
+      }
+    }
+  }, [])
 
 
   // ================== INTERNAL HOOKS ==================
