@@ -725,7 +725,7 @@ function Table<RecordType extends DefaultRecordType>(props: TableProps<RecordTyp
       if (firstScrollParent === document.body) {
         scrollTop = document.body.scrollTop || document.documentElement.scrollTop;
       }
-      let summaryTop = scrollTop - footOffsetParentTop;
+      let summaryTop = footOffsetParentTop + scrollTop - (isHorizonScroll ? 0 : scrollbarSize); 
       if (summaryTop > 0) summaryTop = 0;
       requestAnimationFrame(() => {
         [].forEach.call(summaryEles, summaryEle => {
@@ -736,7 +736,7 @@ function Table<RecordType extends DefaultRecordType>(props: TableProps<RecordTyp
         })
       })
     }
-  }, [footRef.current, firstScrollParent, summaryEles, footOffsetParentTop]);
+  }, [footRef.current, firstScrollParent, summaryEles, footOffsetParentTop, isHorizonScroll, scrollbarSize]);
 
 
 
@@ -797,8 +797,9 @@ function Table<RecordType extends DefaultRecordType>(props: TableProps<RecordTyp
     if (tableContainerRef.current) {
       const myObserver = new ResizeObserver(debounce(() => {
         const first = getScrollParent(tableContainerRef.current);
+        const { top: ctop = 0, height } = tableContainerRef.current.getBoundingClientRect();
         if (first && tableContainerRef.current) {
-          const { top: ctop = 0, height } = tableContainerRef.current.getBoundingClientRect();
+          
           if (height === 0) return;
           const { top: ptop } = first.getBoundingClientRect();
           const offsetParentTop = ctop - ptop + first.scrollTop;
@@ -806,16 +807,8 @@ function Table<RecordType extends DefaultRecordType>(props: TableProps<RecordTyp
           setFirstScrollParent(first);
         }
 
-
         if (footRef && footRef.current) {
-          // @ts-ignore
-          footRef.current.style.transform = 'translateY(0px)';
-          setTimeout(() => {
-            // @ts-ignore
-            const { top: ftop = 0, height: footHeight } = footRef!.current!.getBoundingClientRect();
-            const { top: ptop, height } = first.getBoundingClientRect();
-            setFootOffsetParentTop(ftop - ptop - height + footHeight);
-          }, 100)
+          setFootOffsetParentTop(document.body.clientHeight - ctop -first.scrollTop - height);
         }
 
       }, 500))
@@ -1359,6 +1352,7 @@ function Table<RecordType extends DefaultRecordType>(props: TableProps<RecordTyp
               {fixLeftColumns.length > 0 && renderLeftFixedTable()}
               {fixRightColumns.length > 0 && renderRightFixedTable()}
               {
+                // stickySummary 和
                 isSticky && (
                   <StickyScrollBar
                     ref={stickyRef}

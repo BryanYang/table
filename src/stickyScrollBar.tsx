@@ -5,7 +5,9 @@ import classNames from 'classnames';
 import { getOffset } from 'rc-util/lib/Dom/css';
 import TableContext from './context/TableContext';
 import { useFrameState } from './hooks/useFrame';
+import ResizeObserver from 'resize-observer-polyfill';
 import { getScrollParent } from './utils/domUtil';
+import debounce from './utils/debounce';
 
 interface StickyScrollBarProps {
   scrollBodyRef: React.RefObject<HTMLDivElement>;
@@ -145,12 +147,29 @@ const StickyScrollBar: React.ForwardRefRenderFunction<unknown, StickyScrollBarPr
     return () => {};
   }, [firstSrcollParent]);
 
+
+  // 监听所有父元素的resize. 变化后。重新寻找第一个滚动的父元素
   React.useEffect(() => {
-    setFirstScrollParent(getScrollParent(scrollBodyRef.current));
-    setTimeout(() => {
-      setFirstScrollParent(getScrollParent(scrollBodyRef.current));
-    }, 2000)
-  }, [scrollBodyRef.current]);
+    // eslint-disable-next-line 
+    if (scrollBodyRef.current) {
+      const first = getScrollParent(scrollBodyRef.current);
+      // setTimeout(() => {
+      //   onContainerScroll();
+      // }, 200);
+      setFirstScrollParent(first);
+      const myObserver = new ResizeObserver(debounce(() => {
+        setFirstScrollParent(getScrollParent(scrollBodyRef.current));
+        setTimeout(() => {
+          onContainerScroll();
+        }, 200);
+      }, 500))
+      let p = scrollBodyRef.current.parentElement;
+      while (p) {
+        myObserver.observe(p);
+        p = p.parentElement;
+      }
+    }
+  }, [scrollBodyRef.current])
 
 
 
