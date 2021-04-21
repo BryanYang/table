@@ -45,13 +45,6 @@
     "test": "father test",
     "coverage": "father test --coverage"
   },
-  "peerDependencies": {
-    "rc-checkbox": "~2.1.6",
-    "rc-motion": "^2.0.1",
-    "react-dom": "^16.0.0",
-    "resize-observer-polyfill": "^1.5.1",
-    "shallowequal": "^1.1.0"
-  },
   "dependencies": {
     "@ant-design/css-animation": "^1.7.3",
     "@ant-design/icons": "4.0.0",
@@ -65,7 +58,12 @@
     "rc-resize-observer": "^0.2.0",
     "rc-select": "^12.1.9",
     "rc-tree": "^4.1.5",
-    "rc-util": "4.10.0"
+    "rc-util": "^4.10.0",
+    "rc-checkbox": "~2.1.6",
+    "rc-motion": "^2.0.1",
+    "react-dom": "^16.0.0",
+    "resize-observer-polyfill": "^1.5.1",
+    "shallowequal": "^1.1.0"
   },
   "devDependencies": {
     "@types/classnames": "^2.2.9",
