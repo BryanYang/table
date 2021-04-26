@@ -269,48 +269,6 @@ function Table<RecordType extends DefaultRecordType>(props: TableProps<RecordTyp
     expandedRowsHeight: {},
   }), []);
 
-  const syncFixedTableRowHeight = React.useCallback(() => {
-    if (!fixColumn) {
-      return;
-    }
-    const bodyTable = scrollBodyRef.current;
-    const headTable = scrollHeaderRef.current;
-    if (!bodyTable || !bodyTable.querySelectorAll) return;
-    const headRows = headTable
-      ? headTable.querySelectorAll('thead')
-      : bodyTable.querySelectorAll('thead');
-    const bodyRows = bodyTable.querySelectorAll(`.${prefixCls}-row`) || [];
-    const state = store.getState();
-    const fixedColumnsHeadRowsHeight = [].map.call(
-      headRows,
-      (row: HTMLElement) => row.getBoundingClientRect().height || 'auto',
-    );
-    const fixedColumnsBodyRowsHeight = [].reduce.call(
-      bodyRows,
-      (acc: Record<string, number | 'auto'>, row: HTMLElement) => {
-        const rowkey = row.getAttribute('data-row-key');
-        const height =
-          row.getBoundingClientRect().height || state.fixedColumnsBodyRowsHeight[rowkey] || 'auto';
-        acc[rowkey] = height;
-        return acc;
-      },
-      {},
-    );
-    if (
-      shallowEqual(state.fixedColumnsHeadRowsHeight, fixedColumnsHeadRowsHeight) &&
-      shallowEqual(state.fixedColumnsBodyRowsHeight, fixedColumnsBodyRowsHeight)
-    ) {
-      return;
-    }
-
-    // console.log(fixedColumnsHeadRowsHeight);
-    // console.log(fixedColumnsBodyRowsHeight);
-    store.setState({
-      fixedColumnsHeadRowsHeight,
-      fixedColumnsBodyRowsHeight,
-    });
-  }, []);
-
   // const setScrollPosition = React.useCallback((position: ScrollPosition) => {
   //   scrollPosition = position;
   //   const tableNode = fullTableRef.current;
@@ -536,6 +494,48 @@ function Table<RecordType extends DefaultRecordType>(props: TableProps<RecordTyp
     };
   }
 
+  const syncFixedTableRowHeight = React.useCallback(() => {
+    if (!fixColumn) {
+      return;
+    }
+    const bodyTable = scrollBodyRef.current;
+    const headTable = scrollHeaderRef.current;
+    if (!bodyTable || !bodyTable.querySelectorAll) return;
+    const headRows = headTable
+      ? headTable.querySelectorAll('thead')
+      : bodyTable.querySelectorAll('thead');
+    const bodyRows = bodyTable.querySelectorAll(`.${prefixCls}-row`) || [];
+    const state = store.getState();
+    const fixedColumnsHeadRowsHeight = [].map.call(
+      headRows,
+      (row: HTMLElement) => row.getBoundingClientRect().height || 'auto',
+    );
+    const fixedColumnsBodyRowsHeight = [].reduce.call(
+      bodyRows,
+      (acc: Record<string, number | 'auto'>, row: HTMLElement) => {
+        const rowkey = row.getAttribute('data-row-key');
+        const height =
+          row.getBoundingClientRect().height || state.fixedColumnsBodyRowsHeight[rowkey] || 'auto';
+        acc[rowkey] = height;
+        return acc;
+      },
+      {},
+    );
+    if (
+      shallowEqual(state.fixedColumnsHeadRowsHeight, fixedColumnsHeadRowsHeight) &&
+      shallowEqual(state.fixedColumnsBodyRowsHeight, fixedColumnsBodyRowsHeight)
+    ) {
+      return;
+    }
+
+    // console.log(fixedColumnsHeadRowsHeight);
+    // console.log(fixedColumnsBodyRowsHeight);
+    store.setState({
+      fixedColumnsHeadRowsHeight,
+      fixedColumnsBodyRowsHeight,
+    });
+  }, [ fixColumn ]);
+
   if (horizonScroll) {
     // @ts-ignore
     scrollXStyle = { overflowX: 'auto' };
@@ -671,6 +671,10 @@ function Table<RecordType extends DefaultRecordType>(props: TableProps<RecordTyp
       triggerOnScroll();
     }
   }, [horizonScroll]);
+
+  React.useEffect(() => {
+    syncFixedTableRowHeight();
+  }, [flattenColumns])
 
   // eslint-disable-next-line consistent-return
   React.useEffect(() => {
