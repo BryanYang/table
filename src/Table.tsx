@@ -468,9 +468,9 @@ function Table<RecordType extends DefaultRecordType>(props: TableProps<RecordTyp
   const fixHeader = scroll && validateValue(scroll.y);
   const horizonScroll = scroll && validateValue(scroll.x);
   const fixColumn = horizonScroll && flattenColumns.some(({ fixed }) => fixed);
-  const fixLeftColumns: ColumnType<RecordType>[] = columns.filter(({ fixed }) => fixed === 'left');
+  const fixLeftColumns: ColumnType<RecordType>[] = columns.filter(({ fixed }) => fixed === 'left' || fixed === true);
   const fixRightColumns: ColumnType<RecordType>[] = columns.filter(({ fixed }) => fixed === 'right');
-  const fixLeftFlattenColumns = flattenColumns.filter(({ fixed }) => fixed === 'left');
+  const fixLeftFlattenColumns = flattenColumns.filter(({ fixed }) => fixed === 'left' || fixed === true);
   const fixRightFlattenColumns = flattenColumns.filter(({ fixed }) => fixed === 'right');
   const ChromeVersion = useChromeVersion();
 
@@ -801,6 +801,7 @@ function Table<RecordType extends DefaultRecordType>(props: TableProps<RecordTyp
     if (tableContainerRef.current) {
       const myObserver = new ResizeObserver(debounce(() => {
         const first = getScrollParent(tableContainerRef.current);
+        if (!tableContainerRef.current) return;
         const { top: ctop = 0, height } = tableContainerRef.current.getBoundingClientRect();
         if (first && tableContainerRef.current) {
           

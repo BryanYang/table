@@ -77,7 +77,7 @@ function BodyRow<RecordType extends { children?: RecordType[] }>(props: BodyRowP
   const expanded = expandedKeys && expandedKeys.has(props.recordKey);
 
   const setExpandedRowHeight = React.useCallback(() => {
-    if (store) {
+    if (store && ref.current) {
       let { expandedRowsHeight } = store.getState();
       const { height } = ref.current.getBoundingClientRect();
       expandedRowsHeight = {
